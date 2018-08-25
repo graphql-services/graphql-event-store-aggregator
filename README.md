@@ -1,38 +1,12 @@
 # graphql-event-store-aggregator
 
-## Description
+Aggregator for GraphQL EventStore
 
-aggregator-for-graph-ql-event-store
+## Build
 
-## Installation
+Dockerfile
 
-```bash
-$ npm install
 ```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-npm run start:prod
+FROM graphql/event-store-aggregator
+COPY graphql.schema /code/graphql.schema
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
