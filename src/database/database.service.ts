@@ -7,15 +7,19 @@ import {
 } from 'typeorm';
 import { Entity, ModelSchema } from 'graphql/model.schema';
 import { schemaForEntity } from './database.schema';
+import { ENV } from 'env';
+import { DriverUtils } from './driver.utils';
 
 export class DatabaseService {
   private connection?: Connection;
+
   private async initializeConnection(entities: EntitySchema<any>[]) {
+    const options = DriverUtils.getConnectionOptions();
+    global.console.log('??', options);
     const connection = await createConnection({
       entities,
       logging: true,
-      type: 'sqlite',
-      database: 'test.db',
+      ...options,
     });
 
     await connection.synchronize();
