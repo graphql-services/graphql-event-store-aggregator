@@ -160,7 +160,7 @@ export class Entity {
   getObjectResultType(): GraphQLObjectType {
     if (!this._objectResultType) {
       this._objectResultType = new GraphQLObjectType({
-        name: `${this.name}Result`,
+        name: `${this.name}ResultType`,
         fields: {
           items: {
             type: new GraphQLNonNull(
@@ -179,7 +179,7 @@ export class Entity {
   getOrderInputType(): GraphQLInputType {
     if (!this._orderInputType) {
       this._orderInputType = new GraphQLEnumType({
-        name: `${this.name}OrderInput`,
+        name: `${this.name}SortType`,
         values: {
           ID: { value: { id: 'ASC' } },
           ID_DESC: { value: { id: 'DESC' } },
@@ -197,7 +197,7 @@ export class Entity {
   getFilterInputType(): GraphQLInputType {
     if (!this._filterInputType) {
       this._filterInputType = new GraphQLInputObjectType({
-        name: `${this.name}Filter`,
+        name: `${this.name}FilterType`,
         fields: this.inputFieldMap(true),
       });
     }
