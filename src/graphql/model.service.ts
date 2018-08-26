@@ -15,6 +15,7 @@ import { sync as globSync } from 'glob';
 import { readFileSync } from 'fs';
 import { DatabaseService } from 'database/database.service';
 import { FindManyOptions } from 'typeorm';
+import { camelCase } from 'voca';
 
 interface FieldSelection {
   [key: string]: FieldSelection | null;
@@ -54,7 +55,7 @@ export class ModelService {
         entity.name,
       );
 
-      queryFields[pluralize(entity.name.toLocaleLowerCase())] = {
+      queryFields[pluralize(camelCase(entity.name))] = {
         type: entity.getObjectResultType(),
         args: {
           offset: { type: GraphQLInt },
@@ -76,7 +77,6 @@ export class ModelService {
             where: args.filter,
             order,
           };
-          global.console.log('??', args, '=>', options);
 
           const selectionSet = info.fieldNodes[0]
             .selectionSet as SelectionSetNode;
