@@ -1,13 +1,12 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import {
   GraphQLSchema,
-  parse,
   GraphQLObjectType,
-  ObjectTypeDefinitionNode,
   GraphQLFieldConfigMap,
-  typeFromAST,
-  buildSchema,
-  GraphQLNonNull,
+  GraphQLInt,
+  GraphQLResolveInfo,
+  SelectionSetNode,
+  FieldNode,
   GraphQLList,
 } from 'graphql';
 import { ModelSchema, Entity, EntityField } from './model.schema';
@@ -15,6 +14,11 @@ import * as pluralize from 'pluralize';
 import { sync as globSync } from 'glob';
 import { readFileSync } from 'fs';
 import { DatabaseService } from 'database/database.service';
+import { FindManyOptions } from 'typeorm';
+
+interface FieldSelection {
+  [key: string]: FieldSelection | null;
+}
 
 @Injectable()
 export class ModelService {
@@ -28,22 +32,18 @@ export class ModelService {
   }
 
   parseModelSchema(string: string): ModelSchema {
-    const schema = buildSchema(`scalar DateTime\n${string}`);
-    const document = parse(string);
+    return new ModelSchema(string);
+  }
 
-    const entities: Entity[] = [];
-    for (const _def of document.definitions) {
-      if (_def.kind === 'ObjectTypeDefinition') {
-        const def = _def as ObjectTypeDefinitionNode;
-        const name = def.name.value;
-        const fields = def.fields.map(field => {
-          const type = typeFromAST(schema, field.type);
-          return new EntityField({ type, name: field.name.value });
-        });
-        entities.push(new Entity({ name, fields }));
+  getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
+    const result = {};
+    if (selectionNode) {
+      for (const selection of selectionNode.selections) {
+        const node = selection as FieldNode;
+        result[node.name.value] = this.getFieldSelection(node.selectionSet);
       }
     }
-    return new ModelSchema({ entities });
+    return result;
   }
 
   getGraphQLSchema(modelSchema: ModelSchema): GraphQLSchema {
@@ -55,11 +55,55 @@ export class ModelService {
       );
 
       queryFields[pluralize(entity.name.toLocaleLowerCase())] = {
-        type: new GraphQLNonNull(
-          new GraphQLList(new GraphQLNonNull(entity.getObjectType())),
-        ),
-        resolve: () => {
-          return repository.find();
+        type: entity.getObjectResultType(),
+        args: {
+          offset: { type: GraphQLInt },
+          limit: { type: GraphQLInt },
+          sort: { type: new GraphQLList(entity.getOrderInputType()) },
+          filter: { type: entity.getFilterInputType() },
+        },
+        resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
+          const order = args.sort
+            ? args.sort.reduce(
+                (current, prev) => Object.assign({}, current, prev),
+                {},
+              )
+            : undefined;
+
+          const options: FindManyOptions = {
+            skip: args.offset,
+            take: args.limit,
+            where: args.filter,
+            order,
+          };
+          global.console.log('??', args, '=>', options);
+
+          const selectionSet = info.fieldNodes[0]
+            .selectionSet as SelectionSetNode;
+          const fields = this.getFieldSelection(selectionSet);
+
+          const result: { items?: any[]; count?: number } = {};
+
+          if (fields.items) {
+            options.select = Object.keys(fields.items).filter(f =>
+              entity.hasField(f),
+            );
+          }
+
+          if (fields.count && fields.items) {
+            const [items, count] = await repository.findAndCount(options);
+            result.items = items;
+            result.count = count;
+          }
+
+          if (fields.items) {
+            result.items = await repository.find(options);
+          }
+          if (fields.count) {
+            result.count = await repository.count(options);
+          }
+
+          return result;
         },
       };
     }

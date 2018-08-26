@@ -15,20 +15,33 @@ export const schemaForEntity = (entity: Entity): EntitySchema => {
     },
   };
 
-  entity.fields.map(f => {
-    columns[f.name] = {
-      type: String,
-      nullable: true,
-    };
-  });
+  for (const field of entity.fields) {
+    if (!field.isReferenceList() && !field.isReference()) {
+      columns[field.name] = columnOptionsForField(field);
+    }
+  }
+
   return new EntitySchema({
     name: entity.name,
     columns,
   });
 };
 
+const columnOptionsForField = (
+  field: EntityField,
+): EntitySchemaColumnOptions => {
+  return {
+    type: columnTypeForField(field),
+    nullable: !field.isNonNull(),
+  };
+};
+
 const columnTypeForField = (field: EntityField): ColumnType => {
   const type = getNamedType(field.outputType);
+  switch (type) {
+    case GraphQLInt:
+      return Number;
+  }
   if (type === GraphQLInt) {
     return Number;
   }
