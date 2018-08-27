@@ -13,7 +13,7 @@ export class PubSubFactory {
 
   getService(): PubSubService {
     return new PubSubService({
-      url: ENV.NSQ_URL,
+      url: ENV.NSQ_URL || ':4160',
       databaseService: this.databaseService,
     });
   }
