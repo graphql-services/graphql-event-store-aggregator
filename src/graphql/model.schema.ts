@@ -21,6 +21,7 @@ import {
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInputFieldConfigMap,
+  GraphQLEnumValueConfigMap,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 
@@ -178,16 +179,25 @@ export class Entity {
   private _orderInputType?: GraphQLInputType;
   getOrderInputType(): GraphQLInputType {
     if (!this._orderInputType) {
+      const values: GraphQLEnumValueConfigMap = {
+        ID: { value: { id: 'ASC' } },
+        ID_DESC: { value: { id: 'DESC' } },
+        CREATED_AT: { value: { createdAt: 'ASC' } },
+        CREATED_AT_DESC: { value: { createdAt: 'DESC' } },
+        UPDATED_AT: { value: { updatedAt: 'ASC' } },
+        UPDATED_AT_DESC: { value: { updatedAt: 'DESC' } },
+      };
+      const fields = this.inputFieldMap();
+      for (const fieldName of Object.keys(fields)) {
+        values[fieldName.toUpperCase()] = { value: { updatedAt: 'ASC' } };
+        values[fieldName.toUpperCase() + '_DESC'] = {
+          value: { updatedAt: 'DESC' },
+        };
+      }
+
       this._orderInputType = new GraphQLEnumType({
         name: `${this.name}SortType`,
-        values: {
-          ID: { value: { id: 'ASC' } },
-          ID_DESC: { value: { id: 'DESC' } },
-          CREATED_AT: { value: { createdAt: 'ASC' } },
-          CREATED_AT_DESC: { value: { createdAt: 'DESC' } },
-          UPDATED_AT: { value: { updatedAt: 'ASC' } },
-          UPDATED_AT_DESC: { value: { updatedAt: 'DESC' } },
-        },
+        values,
       });
     }
     return this._orderInputType;
