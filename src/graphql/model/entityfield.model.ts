@@ -61,13 +61,13 @@ export class EntityField {
       const entity = this.config.entity.schema.getEntityForName(
         this.namedType.name,
       );
-      const type = entity.getObjectType();
+      const type = this.isNonNull()
+        ? new GraphQLNonNull(entity.getObjectType())
+        : entity.getObjectType();
       if (this.isReference()) {
-        return new GraphQLNonNull(type);
+        return type;
       } else if (this.isReferenceList()) {
-        return new GraphQLNonNull(
-          new GraphQLList(this.isNonNull() ? new GraphQLNonNull(type) : type),
-        );
+        return new GraphQLNonNull(new GraphQLList(type));
       }
     }
 

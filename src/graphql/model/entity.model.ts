@@ -77,7 +77,7 @@ export class Entity {
     return !!this.outputFieldMap()[name];
   }
 
-  _fields?: GraphQLFieldConfigMap<any, any>;
+  private _fields?: GraphQLFieldConfigMap<any, any>;
   outputFieldMap(): GraphQLFieldConfigMap<any, any> {
     if (!this._fields) {
       const fields: GraphQLFieldConfigMap<any, any> = {};

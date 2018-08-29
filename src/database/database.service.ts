@@ -6,7 +6,6 @@ import {
 } from 'typeorm';
 import { Entity, ModelSchema } from 'graphql/model.schema';
 import { schemaForEntity } from './database.schema';
-import { ENV } from 'env';
 import { DriverUtils } from './driver.utils';
 
 export class DatabaseService {
@@ -16,7 +15,7 @@ export class DatabaseService {
     const options = DriverUtils.getConnectionOptions();
     const connection = await createConnection({
       entities,
-      // logging: true,
+      logging: true,
       ...options,
     });
 

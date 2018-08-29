@@ -99,14 +99,15 @@ const relationshipOptionsForField = (
       type: 'one-to-many',
     };
   } else if (field.isReference() && inverseField.isReference()) {
-    return {
-      target,
-      inverseSide,
-      type: 'one-to-one',
-      joinColumn: field.entity.name > inverseField.entity.name && {
-        name: `${field.name}_id`,
-      },
-    };
+    throw new Error('one-to-one relationships are not supported');
+    // return {
+    //   target,
+    //   inverseSide,
+    //   type: 'one-to-one',
+    //   joinColumn: relationDirective.arguments.primary && {
+    //     name: `${field.name}_id`,
+    //   },
+    // };
   }
   return undefined;
 };
