@@ -3,7 +3,6 @@ import {
   EntitySchema,
   Connection,
   Repository,
-  EntitySchemaColumnOptions,
 } from 'typeorm';
 import { Entity, ModelSchema } from 'graphql/model.schema';
 import { schemaForEntity } from './database.schema';
@@ -15,10 +14,9 @@ export class DatabaseService {
 
   private async initializeConnection(entities: EntitySchema<any>[]) {
     const options = DriverUtils.getConnectionOptions();
-    global.console.log('??', options);
     const connection = await createConnection({
       entities,
-      logging: true,
+      // logging: true,
       ...options,
     });
 

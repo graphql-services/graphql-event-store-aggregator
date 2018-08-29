@@ -5,28 +5,25 @@ import {
   GraphQLFieldConfigMap,
   GraphQLInt,
   GraphQLResolveInfo,
-  SelectionSetNode,
-  FieldNode,
   GraphQLList,
 } from 'graphql';
-import { ModelSchema, Entity, EntityField } from './model.schema';
+import { ModelSchema } from './model.schema';
 import * as pluralize from 'pluralize';
 import { sync as globSync } from 'glob';
 import { readFileSync } from 'fs';
 import { DatabaseService } from 'database/database.service';
-import { FindManyOptions } from 'typeorm';
 import { camelCase } from 'voca';
-
-interface FieldSelection {
-  [key: string]: FieldSelection | null;
-}
+import { ModelResolver } from './model.resolver';
 
 @Injectable()
 export class ModelService {
+  private resolver: ModelResolver;
   constructor(
     @Inject(forwardRef(() => DatabaseService))
     private readonly databaseService: DatabaseService,
-  ) {}
+  ) {
+    this.resolver = new ModelResolver(databaseService);
+  }
 
   async initialize() {
     await this.databaseService.initialize(this.modelSchema);
@@ -36,25 +33,10 @@ export class ModelService {
     return new ModelSchema(string);
   }
 
-  getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
-    const result = {};
-    if (selectionNode) {
-      for (const selection of selectionNode.selections) {
-        const node = selection as FieldNode;
-        result[node.name.value] = this.getFieldSelection(node.selectionSet);
-      }
-    }
-    return result;
-  }
-
   getGraphQLSchema(modelSchema: ModelSchema): GraphQLSchema {
     const queryFields: GraphQLFieldConfigMap<any, any> = {};
 
     for (const entity of modelSchema.entities) {
-      const repository = this.databaseService.repositoryForEntityName(
-        entity.name,
-      );
-
       queryFields[pluralize(camelCase(entity.name))] = {
         type: entity.getObjectResultType(),
         args: {
@@ -64,46 +46,7 @@ export class ModelService {
           filter: { type: entity.getFilterInputType() },
         },
         resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
-          const order = args.sort
-            ? args.sort.reduce(
-                (current, prev) => Object.assign({}, current, prev),
-                {},
-              )
-            : undefined;
-
-          const options: FindManyOptions = {
-            skip: args.offset,
-            take: args.limit,
-            where: args.filter,
-            order,
-          };
-
-          const selectionSet = info.fieldNodes[0]
-            .selectionSet as SelectionSetNode;
-          const fields = this.getFieldSelection(selectionSet);
-
-          const result: { items?: any[]; count?: number } = {};
-
-          if (fields.items) {
-            options.select = Object.keys(fields.items).filter(f =>
-              entity.hasField(f),
-            );
-          }
-
-          if (fields.count && fields.items) {
-            const [items, count] = await repository.findAndCount(options);
-            result.items = items;
-            result.count = count;
-          }
-
-          if (fields.items) {
-            result.items = await repository.find(options);
-          }
-          if (fields.count) {
-            result.count = await repository.count(options);
-          }
-
-          return result;
+          return this.resolver.resolve(entity, parent, args, ctx, info);
         },
       };
     }

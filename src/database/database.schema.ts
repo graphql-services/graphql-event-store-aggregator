@@ -1,4 +1,10 @@
-import { EntitySchemaColumnOptions, EntitySchema, ColumnType } from 'typeorm';
+import {
+  EntitySchemaColumnOptions,
+  EntitySchema,
+  ColumnType,
+  EntitySchemaRelationOptions,
+  JoinTableOptions,
+} from 'typeorm';
 import { Entity, EntityField } from 'graphql/model.schema';
 import { getNamedType, GraphQLInt } from 'graphql';
 
@@ -15,8 +21,16 @@ export const schemaForEntity = (entity: Entity): EntitySchema => {
     },
   };
 
-  for (const field of entity.fields) {
-    if (!field.isReferenceList() && !field.isReference()) {
+  const relations: { [key: string]: EntitySchemaRelationOptions } = {};
+
+  for (const fieldName of Object.keys(entity.fields)) {
+    const field = entity.fields[fieldName];
+    if (field.isReference() || field.isReferenceList()) {
+      const options = relationshipOptionsForField(field, entity);
+      if (options) {
+        relations[field.name] = options;
+      }
+    } else {
       columns[field.name] = columnOptionsForField(field);
     }
   }
@@ -24,6 +38,7 @@ export const schemaForEntity = (entity: Entity): EntitySchema => {
   return new EntitySchema({
     name: entity.name,
     columns,
+    relations,
   });
 };
 
@@ -34,6 +49,86 @@ const columnOptionsForField = (
     type: columnTypeForField(field),
     nullable: !field.isNonNull(),
   };
+};
+
+const relationshipOptionsForField = (
+  field: EntityField,
+  entity: Entity,
+): EntitySchemaRelationOptions | undefined => {
+  const relationDirective = field.getDirective('relation');
+
+  if (!relationDirective) {
+    global.console.log(
+      `Relation directive missing ${entity.name}.${field.name} ... skipping`,
+    );
+    return undefined;
+  }
+
+  const relationEntity = entity.schema.getEntityForName(field.namedType.name);
+  const target = field.namedType.name;
+
+  const inverseSide = relationDirective.arguments.inverse as string;
+  if (!inverseSide) {
+    global.console.log(
+      `Relation directive missing ${entity.name}.${field.name} ... skipping`,
+    );
+    return undefined;
+  }
+
+  const inverseField = relationEntity.fields[inverseSide];
+  if (!inverseField) {
+    global.console.log(
+      `Inverse relation field ${
+        relationEntity.name
+      }.${inverseSide} not found relation ${entity.name}.${
+        field.name
+      } ... skipping`,
+    );
+    return undefined;
+  }
+
+  if (field.isReferenceList() && inverseField.isReferenceList()) {
+    return {
+      target,
+      inverseSide,
+      type: 'many-to-many',
+      joinTable: joinTableOptionsForManyToMany(field, inverseField),
+    };
+  } else if (field.isReference() && inverseField.isReferenceList()) {
+    return {
+      target,
+      inverseSide,
+      type: 'many-to-one',
+      joinColumn: { name: `${field.name}_id` },
+    };
+  } else if (field.isReferenceList() && inverseField.isReference()) {
+    return {
+      target,
+      inverseSide,
+      type: 'one-to-many',
+    };
+  } else if (field.isReference() && inverseField.isReference()) {
+    return {
+      target,
+      inverseSide,
+      type: 'one-to-one',
+      joinColumn: field.entity.name > inverseField.entity.name && {
+        name: `${field.name}_id`,
+      },
+    };
+  }
+  return undefined;
+};
+
+const joinTableOptionsForManyToMany = (
+  field1: EntityField,
+  field2: EntityField,
+): JoinTableOptions => {
+  const name =
+    field1.entity.name > field2.entity.name
+      ? `${field1.entity.name}_${field1.name}`
+      : `${field2.entity.name}_${field2.name}`;
+  return { name };
 };
 
 const columnTypeForField = (field: EntityField): ColumnType => {
