@@ -21,7 +21,7 @@ export class DriverUtils {
     if (dbUrl.protocol === 'sqlite:') {
       return {
         type: 'sqlite',
-        database: dbUrl.host,
+        database: dbUrl.host || ':memory:',
       };
     } else {
       const type = (dbUrl.protocol || '').replace(':', '') as any;
