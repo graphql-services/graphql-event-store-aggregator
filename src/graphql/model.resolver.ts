@@ -30,12 +30,11 @@ export class ModelResolver {
         )
       : undefined;
 
-    const options: FindManyOptions = {
-      skip: args.offset,
-      take: args.limit,
-      where: args.filter,
-      order,
-    };
+    const options: FindManyOptions = {};
+    if (args.offset) options.skip = args.offset;
+    if (args.limit) options.take = args.limit;
+    if (args.filter) options.where = args.filter;
+    if (args.order) options.order = args.order;
 
     const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
     const fields = this.getFieldSelection(selectionSet);
@@ -99,14 +98,14 @@ export class ModelResolver {
     //   result.count = count;
     // }
 
-    // global.console.log(props.query.getSql());
+    global.console.log(props.options);
     if (props.fields.items) {
       // result.items = await props.query.getMany();
       result.items = await props.repository.find(props.options);
     }
     if (props.fields.count) {
       // result.count = await props.query.getCount();
-      result.count = await props.repository.count();
+      result.count = await props.repository.count(props.options);
     }
 
     // global.console.log('results:', result);

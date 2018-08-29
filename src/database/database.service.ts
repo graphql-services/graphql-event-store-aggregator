@@ -15,7 +15,7 @@ export class DatabaseService {
     const options = DriverUtils.getConnectionOptions();
     const connection = await createConnection({
       entities,
-      logging: true,
+      // logging: true,
       ...options,
     });
 
