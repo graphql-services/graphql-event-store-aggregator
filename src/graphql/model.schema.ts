@@ -1,30 +1,13 @@
 import {
-  getNullableType,
-  GraphQLObjectType,
-  GraphQLType,
   GraphQLNonNull,
-  GraphQLList,
-  GraphQLOutputType,
   GraphQLID,
-  assertOutputType,
-  GraphQLInputType,
-  assertInputType,
-  GraphQLFieldConfigMap,
   GraphQLInterfaceType,
-  getNamedType,
   buildSchema,
   parse,
   ObjectTypeDefinitionNode,
   typeFromAST,
-  GraphQLInt,
-  GraphQLNamedType,
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLInputFieldConfigMap,
-  GraphQLEnumValueConfigMap,
   NamedTypeNode,
 } from 'graphql';
-import { GraphQLDateTime } from 'graphql-iso-date';
 import { Entity } from './model/entity.model';
 import { EntityField } from './model/entityfield.model';
 import { EntityFieldDirective } from './model/entityfielddirective.model';
@@ -32,17 +15,6 @@ import { EntityFieldDirective } from './model/entityfielddirective.model';
 export { Entity } from './model/entity.model';
 export { EntityField } from './model/entityfield.model';
 export { EntityFieldDirective } from './model/entityfielddirective.model';
-
-const entityInterface = new GraphQLInterfaceType({
-  name: 'Entity',
-  fields: {
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-    },
-    createdAt: { type: new GraphQLNonNull(GraphQLDateTime) },
-    updatedAt: { type: GraphQLDateTime },
-  },
-});
 
 export class ModelSchema {
   entities: Entity[] = [];
@@ -59,7 +31,7 @@ export class ModelSchema {
           name,
           schema: this,
         });
-        const fields = {};
+        const fields = entity.fields;
         def.fields.map(field => {
           const type = typeFromAST(schema, field.type as NamedTypeNode);
           fields[field.name.value] = new EntityField({

@@ -73,7 +73,9 @@ export class EntityField {
 
     const namedType = getNamedType(this.config.type);
     if (namedType.name === 'DateTime') {
-      return GraphQLDateTime;
+      return this.isNonNull()
+        ? new GraphQLNonNull(GraphQLDateTime)
+        : GraphQLDateTime;
     }
 
     return assertOutputType(this.config.type);
@@ -88,7 +90,9 @@ export class EntityField {
 
     const namedType = getNamedType(this.config.type);
     if (namedType.name === 'DateTime') {
-      return GraphQLDateTime;
+      return this.isNonNull()
+        ? new GraphQLNonNull(GraphQLDateTime)
+        : GraphQLDateTime;
     }
 
     return assertInputType(this.config.type);

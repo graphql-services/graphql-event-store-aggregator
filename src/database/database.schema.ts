@@ -9,17 +9,7 @@ import { Entity, EntityField } from 'graphql/model.schema';
 import { getNamedType, GraphQLInt } from 'graphql';
 
 export const schemaForEntity = (entity: Entity): EntitySchema => {
-  const columns: { [key: string]: EntitySchemaColumnOptions } = {
-    id: { type: String, primary: true },
-    createdAt: {
-      type: Date,
-      nullable: false,
-    },
-    updatedAt: {
-      type: Date,
-      nullable: true,
-    },
-  };
+  const columns: { [key: string]: EntitySchemaColumnOptions } = {};
 
   const relations: { [key: string]: EntitySchemaRelationOptions } = {};
 
@@ -34,6 +24,7 @@ export const schemaForEntity = (entity: Entity): EntitySchema => {
       columns[field.name] = columnOptionsForField(field);
     }
   }
+  columns.id.primary = true;
 
   return new EntitySchema({
     name: entity.name,

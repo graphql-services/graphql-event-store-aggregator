@@ -29,9 +29,30 @@ const entityInterface = new GraphQLInterfaceType({
 });
 
 export class Entity {
-  fields: { [key: string]: EntityField } = {};
+  fields: { [key: string]: EntityField };
 
-  constructor(private readonly config: { name: string; schema: ModelSchema }) {}
+  constructor(private readonly config: { name: string; schema: ModelSchema }) {
+    this.fields = {
+      id: new EntityField({
+        name: 'id',
+        type: new GraphQLNonNull(GraphQLID),
+        entity: this,
+        directives: [],
+      }),
+      updatedAt: new EntityField({
+        name: 'updatedAt',
+        type: GraphQLDateTime,
+        entity: this,
+        directives: [],
+      }),
+      createdAt: new EntityField({
+        name: 'createdAt',
+        type: new GraphQLNonNull(GraphQLDateTime),
+        entity: this,
+        directives: [],
+      }),
+    };
+  }
 
   get name(): string {
     return this.config.name;
@@ -64,9 +85,9 @@ export class Entity {
         const field = this.fields[fieldName];
         fields[field.name] = { type: field.outputType };
       }
-      fields.id = { type: new GraphQLNonNull(GraphQLID) };
-      fields.createdAt = { type: new GraphQLNonNull(GraphQLDateTime) };
-      fields.updatedAt = { type: GraphQLDateTime };
+      // fields.id = { type: new GraphQLNonNull(GraphQLID) };
+      // fields.createdAt = { type: new GraphQLNonNull(GraphQLDateTime) };
+      // fields.updatedAt = { type: GraphQLDateTime };
       this._fields = fields;
     }
 
