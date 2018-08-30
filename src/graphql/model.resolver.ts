@@ -97,8 +97,6 @@ export class ModelResolver {
     //   result.items = items;
     //   result.count = count;
     // }
-
-    global.console.log(props.options);
     if (props.fields.items) {
       // result.items = await props.query.getMany();
       result.items = await props.repository.find(props.options);
