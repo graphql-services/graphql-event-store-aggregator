@@ -1,5 +1,6 @@
 import * as diff from 'changeset';
-import * as nsq from 'nsq.js';
+// import * as nsq from 'nsq.js';
+import * as nsq from 'nsqjs';
 import { StoreEvent, StoreEventType } from './store-event.model';
 import { DatabaseService } from 'database/database.service';
 import { Repository } from 'typeorm';
@@ -18,15 +19,8 @@ export class PubSubService {
 
   async ensureWriter() {
     if (!this.reader) {
-      this.reader = nsq.reader({
-        nsqlookupd: this.config.url.split(','),
-        maxInFlight: 1,
-        maxAttempts: 5,
-        topic: 'es-event',
-        channel: 'aggregator',
-      });
-      this.reader.on('error', err => {
-        global.console.log('error', err);
+      this.reader = new nsq.Reader('es-event', 'aggregator', {
+        lookupdHTTPAddresses: this.config.url.split(','),
       });
 
       this.reader.on('message', async msg => {
@@ -34,6 +28,8 @@ export class PubSubService {
         await this.handleEvent(event);
         msg.finish();
       });
+
+      this.reader.connect();
     }
   }
 
@@ -75,7 +71,6 @@ export class PubSubService {
     });
     if (item) {
       const data = this.getDataForStorage(event.data, entity);
-      global.console.log('???', data);
       repo.merge(item, data);
       await repo.save(item);
     }
