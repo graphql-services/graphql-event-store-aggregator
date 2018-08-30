@@ -19,7 +19,7 @@ export class PubSubService {
   async ensureWriter() {
     if (!this.reader) {
       this.reader = nsq.reader({
-        nsqd: this.config.url.split(','),
+        nsqlookupd: this.config.url.split(','),
         maxInFlight: 1,
         maxAttempts: 5,
         topic: 'es-event',
