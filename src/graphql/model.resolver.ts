@@ -1,28 +1,23 @@
-import { GraphQLResolveInfo, SelectionSetNode, FieldNode } from 'graphql';
 import { DatabaseService } from 'database/database.service';
 import { FindManyOptions, Repository, SelectQueryBuilder } from 'typeorm';
 import { Entity } from './model/entity.model';
-import { Query } from '@nestjs/graphql';
 
-interface FieldSelection {
+export interface FieldSelection {
   [key: string]: FieldSelection | null;
 }
 
 export class ModelResolver {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
-    const result = {};
-    if (selectionNode) {
-      for (const selection of selectionNode.selections) {
-        const node = selection as FieldNode;
-        result[node.name.value] = this.getFieldSelection(node.selectionSet);
-      }
-    }
-    return result;
+  async resolveOne(entity: Entity, args, fields: FieldSelection) {
+    fields = { items: fields };
+    args.limit = 1;
+    const res = await this.resolve(entity, args, fields);
+    if (res.items && res.items.length > 0) return res.items[0];
+    return null;
   }
 
-  async resolve(entity: Entity, parent, args, ctx, info: GraphQLResolveInfo) {
+  async resolve(entity: Entity, args, fields: FieldSelection) {
     const order = args.sort
       ? args.sort.reduce(
           (current, prev) => Object.assign({}, current, prev),
@@ -30,16 +25,14 @@ export class ModelResolver {
         )
       : undefined;
 
-    global.console.log('!!!!', args.sort);
-
     const options: FindManyOptions = {};
     if (args.offset) options.skip = args.offset;
     if (args.limit) options.take = args.limit;
     if (args.filter) options.where = args.filter;
     if (order) options.order = order;
 
-    const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
-    const fields = this.getFieldSelection(selectionSet);
+    // const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
+    // const fields = this.getFieldSelection(selectionSet);
 
     // global.console.log('fields', fields);
 
@@ -85,7 +78,7 @@ export class ModelResolver {
     }
 
     // return this.fetch({ query, fields });
-    global.console.log({ options, fields });
+    // global.console.log({ options, fields });
     return this.fetch({ options, repository, fields });
   }
 
@@ -103,22 +96,16 @@ export class ModelResolver {
     //   result.count = count;
     // }
 
-    try {
-      await props.repository.find(props.options);
-    } catch (e) {
-      global.console.log('???', e);
-    }
     if (props.fields.items) {
       // result.items = await props.query.getMany();
       result.items = await props.repository.find(props.options);
     }
     if (props.fields.count) {
       // result.count = await props.query.getCount();
-      // result.count = await props.repository.count({
-      //   ...props.options,
-      //   select: [],
-      // });
-      result.count = 0;
+      result.count = await props.repository.count({
+        ...props.options,
+        select: [],
+      });
     }
 
     // global.console.log('results:', result);

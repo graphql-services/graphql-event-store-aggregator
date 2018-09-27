@@ -6,6 +6,9 @@ import {
   GraphQLInt,
   GraphQLResolveInfo,
   GraphQLList,
+  SelectionSetNode,
+  FieldNode,
+  GraphQLID,
 } from 'graphql';
 import { ModelSchema } from './model.schema';
 import * as pluralize from 'pluralize';
@@ -13,7 +16,7 @@ import { sync as globSync } from 'glob';
 import { readFileSync } from 'fs';
 import { DatabaseService } from 'database/database.service';
 import { camelCase } from 'voca';
-import { ModelResolver } from './model.resolver';
+import { ModelResolver, FieldSelection } from './model.resolver';
 
 @Injectable()
 export class ModelService {
@@ -33,10 +36,43 @@ export class ModelService {
     return new ModelSchema(string);
   }
 
+  getFieldSelectionFromInfo(info: GraphQLResolveInfo): FieldSelection {
+    const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
+    return this.getFieldSelection(selectionSet);
+  }
+  getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
+    const result = {};
+    if (selectionNode) {
+      for (const selection of selectionNode.selections) {
+        const node = selection as FieldNode;
+        result[node.name.value] = this.getFieldSelection(node.selectionSet);
+      }
+    }
+    return result;
+  }
+
   getGraphQLSchema(modelSchema: ModelSchema): GraphQLSchema {
     const queryFields: GraphQLFieldConfigMap<any, any> = {};
 
     for (const entity of modelSchema.entities) {
+      queryFields[camelCase(entity.name)] = {
+        type: entity.getObjectType(),
+        args: {
+          id: { type: GraphQLID },
+          filter: { type: entity.getFilterInputType() },
+        },
+        resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
+          if (args.id) {
+            args.filter = args.filter || {};
+            args.filter.id = args.id;
+          }
+          return this.resolver.resolveOne(
+            entity,
+            args,
+            this.getFieldSelectionFromInfo(info),
+          );
+        },
+      };
       queryFields[pluralize(camelCase(entity.name))] = {
         type: entity.getObjectResultType(),
         args: {
@@ -46,7 +82,11 @@ export class ModelService {
           filter: { type: entity.getFilterInputType() },
         },
         resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
-          return this.resolver.resolve(entity, parent, args, ctx, info);
+          return this.resolver.resolve(
+            entity,
+            args,
+            this.getFieldSelectionFromInfo(info),
+          );
         },
       };
     }
