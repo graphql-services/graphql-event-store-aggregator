@@ -149,16 +149,23 @@ export class Entity {
         ...Object.keys(this.inputFieldMap()),
       ];
       for (const fieldName of columns) {
-        values[fieldName.toUpperCase()] = {
-          value: { updatedAt: 'ASC' },
-          deprecationReason: `Please use ${fieldName.toUpperCase()}_ASC`,
-        };
-        values[fieldName.toUpperCase() + '_ASC'] = {
-          value: { updatedAt: 'ASC' },
-        };
-        values[fieldName.toUpperCase() + '_DESC'] = {
-          value: { updatedAt: 'DESC' },
-        };
+        if (this.hasColumn(fieldName)) {
+          values[fieldName.toUpperCase()] = {
+            value: {},
+            deprecationReason: `Please use ${fieldName.toUpperCase()}_ASC`,
+          };
+          values[fieldName.toUpperCase()].value[fieldName] = 'ASC';
+
+          values[fieldName.toUpperCase() + '_ASC'] = {
+            value: {},
+          };
+          values[fieldName.toUpperCase() + '_ASC'].value[fieldName] = 'ASC';
+
+          values[fieldName.toUpperCase() + '_DESC'] = {
+            value: {},
+          };
+          values[fieldName.toUpperCase() + '_DESC'].value[fieldName] = 'DESC';
+        }
       }
 
       this._orderInputType = new GraphQLEnumType({

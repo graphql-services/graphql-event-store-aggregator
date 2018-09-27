@@ -30,11 +30,13 @@ export class ModelResolver {
         )
       : undefined;
 
+    global.console.log('!!!!', args.sort);
+
     const options: FindManyOptions = {};
     if (args.offset) options.skip = args.offset;
     if (args.limit) options.take = args.limit;
     if (args.filter) options.where = args.filter;
-    if (args.order) options.order = args.order;
+    if (order) options.order = order;
 
     const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
     const fields = this.getFieldSelection(selectionSet);
@@ -55,6 +57,7 @@ export class ModelResolver {
     if (fields.items) {
       options.select = [
         'id',
+        ...Object.keys(options.order || {}),
         ...Object.keys(fields.items).filter(f => entity.hasColumn(f)),
       ];
       options.relations = Object.keys(fields.items).filter(f =>
@@ -82,6 +85,7 @@ export class ModelResolver {
     }
 
     // return this.fetch({ query, fields });
+    global.console.log({ options, fields });
     return this.fetch({ options, repository, fields });
   }
 
@@ -98,13 +102,23 @@ export class ModelResolver {
     //   result.items = items;
     //   result.count = count;
     // }
+
+    try {
+      await props.repository.find(props.options);
+    } catch (e) {
+      global.console.log('???', e);
+    }
     if (props.fields.items) {
       // result.items = await props.query.getMany();
       result.items = await props.repository.find(props.options);
     }
     if (props.fields.count) {
       // result.count = await props.query.getCount();
-      result.count = await props.repository.count(props.options);
+      // result.count = await props.repository.count({
+      //   ...props.options,
+      //   select: [],
+      // });
+      result.count = 0;
     }
 
     // global.console.log('results:', result);
