@@ -83,7 +83,9 @@ const relationshipOptionsForField = (
       target,
       inverseSide,
       type: 'many-to-many',
-      joinTable: joinTableOptionsForManyToMany(field, inverseField),
+      joinTable:
+        isPrimaryRelationship(field, inverseField) &&
+        joinTableOptionsForManyToMany(field, inverseField),
     };
   } else if (field.isReference() && inverseField.isReferenceList()) {
     return {
@@ -110,6 +112,13 @@ const relationshipOptionsForField = (
     // };
   }
   return undefined;
+};
+
+const isPrimaryRelationship = (
+  field1: EntityField,
+  field2: EntityField,
+): boolean => {
+  return field1.entity.name > field2.entity.name;
 };
 
 const joinTableOptionsForManyToMany = (

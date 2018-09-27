@@ -6,6 +6,10 @@ export interface FieldSelection {
   [key: string]: FieldSelection | null;
 }
 
+const onlyUnique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
 export class ModelResolver {
   constructor(private readonly databaseService: DatabaseService) {}
 
@@ -52,10 +56,16 @@ export class ModelResolver {
         'id',
         ...Object.keys(options.order || {}),
         ...Object.keys(fields.items).filter(f => entity.hasColumn(f)),
-      ];
-      options.relations = Object.keys(fields.items).filter(f =>
-        entity.hasRelation(f),
-      );
+      ].filter(onlyUnique);
+      options.relations = Object.keys(fields.items)
+        .filter(
+          f =>
+            entity.hasRelation(f) ||
+            entity.hasRelation(f.replace('_ids', '').replace('_id', '')),
+        )
+        .map(f => f.replace('_ids', '').replace('_id', ''))
+        .filter(onlyUnique);
+      // options.relations.push('assignee');
       // const select = [
       //   'data.id',
       //   ...Object.keys(fields.items)
@@ -78,7 +88,7 @@ export class ModelResolver {
     }
 
     // return this.fetch({ query, fields });
-    // global.console.log({ options, fields });
+    global.console.log(JSON.stringify({ options, fields }));
     return this.fetch({ options, repository, fields });
   }
 

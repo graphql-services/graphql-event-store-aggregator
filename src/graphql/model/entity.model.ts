@@ -84,6 +84,23 @@ export class Entity {
       for (const fieldName of Object.keys(this.fields)) {
         const field = this.fields[fieldName];
         fields[field.name] = { type: field.outputType };
+        fields[field.name] = { type: field.outputType };
+        if (field.isReference()) {
+          fields[field.name + '_id'] = {
+            type: GraphQLID,
+            resolve: parent => parent[fieldName].id,
+          };
+        }
+        if (field.isReferenceList()) {
+          fields[field.name + '_ids'] = {
+            type: new GraphQLNonNull(
+              new GraphQLList(new GraphQLNonNull(GraphQLID)),
+            ),
+            resolve: parent => {
+              return (parent[fieldName] || []).map(x => x.id);
+            },
+          };
+        }
       }
       // fields.id = { type: new GraphQLNonNull(GraphQLID) };
       // fields.createdAt = { type: new GraphQLNonNull(GraphQLDateTime) };
