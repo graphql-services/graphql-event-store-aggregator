@@ -54,6 +54,7 @@ export class ModelResolver {
 
     if (fields.items) {
       options.select = [
+        'id',
         ...Object.keys(fields.items).filter(f => entity.hasColumn(f)),
       ];
       options.relations = Object.keys(fields.items).filter(f =>
