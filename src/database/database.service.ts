@@ -4,10 +4,13 @@ import {
   Connection,
   Repository,
 } from 'typeorm';
-import { Entity, ModelSchema } from 'graphql/model.schema';
+import { Injectable } from '@nestjs/common';
+
+import { Entity, ModelSchema } from '../model/model.schema';
 import { schemaForEntity } from './database.schema';
 import { DriverUtils } from './driver.utils';
 
+@Injectable()
 export class DatabaseService {
   private connection?: Connection;
 
@@ -30,6 +33,10 @@ export class DatabaseService {
     for (const entity of schema.entities) {
       this.initializeRepository(entity);
     }
+  }
+
+  async close() {
+    if (this.connection) await this.connection.close();
   }
 
   private repositories: { [key: string]: Repository<any> } = {};

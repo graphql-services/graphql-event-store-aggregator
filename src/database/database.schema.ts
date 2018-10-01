@@ -5,7 +5,8 @@ import {
   EntitySchemaRelationOptions,
   JoinTableOptions,
 } from 'typeorm';
-import { Entity, EntityField } from 'graphql/model.schema';
+
+import { Entity, EntityField } from '../model/model.schema';
 import { getNamedType, GraphQLInt } from 'graphql';
 
 export const schemaForEntity = (entity: Entity): EntitySchema => {

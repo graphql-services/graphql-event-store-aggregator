@@ -14,6 +14,7 @@ import {
   GraphQLEnumValueConfigMap,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
+
 import { EntityField } from './entityfield.model';
 import { ModelSchema } from '../model.schema';
 

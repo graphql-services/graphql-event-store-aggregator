@@ -8,13 +8,14 @@ import {
   typeFromAST,
   NamedTypeNode,
 } from 'graphql';
-import { Entity } from './model/entity.model';
-import { EntityField } from './model/entityfield.model';
-import { EntityFieldDirective } from './model/entityfielddirective.model';
 
-export { Entity } from './model/entity.model';
-export { EntityField } from './model/entityfield.model';
-export { EntityFieldDirective } from './model/entityfielddirective.model';
+import { Entity } from './types/entity.model';
+import { EntityField } from './types/entityfield.model';
+import { EntityFieldDirective } from './types/entityfielddirective.model';
+
+export { Entity } from './types/entity.model';
+export { EntityField } from './types/entityfield.model';
+export { EntityFieldDirective } from './types/entityfielddirective.model';
 
 export class ModelSchema {
   entities: Entity[] = [];

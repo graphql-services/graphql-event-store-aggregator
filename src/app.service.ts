@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { GraphQLSchema } from 'graphql';
-import { DatabaseService } from 'database/database.service';
-import { ModelService } from 'graphql/model.service';
+
+import { DatabaseService } from './database/database.service';
+import { ModelService } from './model/model.service';
 
 @Injectable()
 export class AppService {
@@ -11,7 +12,10 @@ export class AppService {
   ) {}
 
   getSchema(): GraphQLSchema {
-    return this.modelService.getGraphQLSchema(this.modelService.modelSchema);
+    return this.modelService.getGraphQLSchema(
+      this.modelService.modelSchema,
+      this.databaseService,
+    );
   }
 }
 

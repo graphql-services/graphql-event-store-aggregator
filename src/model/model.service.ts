@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   GraphQLSchema,
   GraphQLObjectType,
@@ -10,27 +10,30 @@ import {
   FieldNode,
   GraphQLID,
 } from 'graphql';
-import { ModelSchema } from './model.schema';
 import * as pluralize from 'pluralize';
 import { sync as globSync } from 'glob';
 import { readFileSync } from 'fs';
-import { DatabaseService } from 'database/database.service';
 import { camelCase } from 'voca';
+
+import { ModelSchema } from './model.schema';
 import { ModelResolver, FieldSelection } from './model.resolver';
+import { DatabaseService } from '../database/database.service';
+
+const pluralizeFn = (pluralize as any).default || pluralize; // jest handles default export differently
 
 @Injectable()
 export class ModelService {
-  private resolver: ModelResolver;
-  constructor(
-    @Inject(forwardRef(() => DatabaseService))
-    private readonly databaseService: DatabaseService,
-  ) {
-    this.resolver = new ModelResolver(databaseService);
-  }
+  // private resolver: ModelResolver;
+  // constructor(
+  //   @Inject(forwardRef(() => DatabaseService))
+  //   private readonly databaseService: DatabaseService,
+  // ) {
+  //   this.resolver = new ModelResolver(databaseService);
+  // }
 
-  async initialize() {
-    await this.databaseService.initialize(this.modelSchema);
-  }
+  // async initialize(databaseService: DatabaseService) {
+  //   await databaseService.initialize(this.modelSchema);
+  // }
 
   parseModelSchema(string: string): ModelSchema {
     return new ModelSchema(string);
@@ -51,8 +54,12 @@ export class ModelService {
     return result;
   }
 
-  getGraphQLSchema(modelSchema: ModelSchema): GraphQLSchema {
+  getGraphQLSchema(
+    modelSchema: ModelSchema,
+    databaseService: DatabaseService,
+  ): GraphQLSchema {
     const queryFields: GraphQLFieldConfigMap<any, any> = {};
+    const resolver = new ModelResolver(databaseService);
 
     for (const entity of modelSchema.entities) {
       queryFields[camelCase(entity.name)] = {
@@ -66,14 +73,14 @@ export class ModelService {
             args.filter = args.filter || {};
             args.filter.id = args.id;
           }
-          return this.resolver.resolveOne(
+          return resolver.resolveOne(
             entity,
             args,
             this.getFieldSelectionFromInfo(info),
           );
         },
       };
-      queryFields[pluralize(camelCase(entity.name))] = {
+      queryFields[pluralizeFn(camelCase(entity.name))] = {
         type: entity.getObjectResultType(),
         args: {
           offset: { type: GraphQLInt },
@@ -82,7 +89,7 @@ export class ModelService {
           filter: { type: entity.getFilterInputType() },
         },
         resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
-          return this.resolver.resolve(
+          return resolver.resolve(
             entity,
             args,
             this.getFieldSelectionFromInfo(info),

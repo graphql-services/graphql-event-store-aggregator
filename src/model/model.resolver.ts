@@ -1,6 +1,7 @@
-import { DatabaseService } from 'database/database.service';
 import { FindManyOptions, Repository, SelectQueryBuilder } from 'typeorm';
-import { Entity } from './model/entity.model';
+
+import { DatabaseService } from '../database/database.service';
+import { Entity } from './types/entity.model';
 
 export interface FieldSelection {
   [key: string]: FieldSelection | null;
@@ -88,7 +89,7 @@ export class ModelResolver {
     }
 
     // return this.fetch({ query, fields });
-    global.console.log(JSON.stringify({ options, fields }));
+    // global.console.log(JSON.stringify({ options, fields }));
     return this.fetch({ options, repository, fields });
   }
 

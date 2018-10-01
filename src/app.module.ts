@@ -4,17 +4,26 @@ import {
   MiddlewareConsumer,
   RequestMethod,
 } from '@nestjs/common';
-import { AppService, AppServiceProvider } from './app.service';
 import { graphqlExpress } from 'apollo-server-express';
 import expressPlayground from 'graphql-playground-middleware-express';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ModelService } from 'graphql/model.service';
-import { PubSubFactory } from 'pubsub/pubsub.factory';
-import { DatabaseService } from 'database/database.service';
+
+import { AppService, AppServiceProvider } from './app.service';
+import { PubSubFactory } from './pubsub/pubsub.factory';
+import { EventsModule } from './events/events.module';
+import { PubSubModule } from './pubsub/pubsub.module';
+import { DatabaseModule } from './database/database.module';
+import { ModelModule } from './model/model.module';
 
 @Module({
-  imports: [GraphQLModule],
-  providers: [AppServiceProvider, ModelService, PubSubFactory, DatabaseService],
+  imports: [
+    GraphQLModule,
+    EventsModule,
+    PubSubModule,
+    DatabaseModule,
+    ModelModule,
+  ],
+  providers: [AppServiceProvider],
 })
 export class AppModule implements NestModule {
   constructor(
