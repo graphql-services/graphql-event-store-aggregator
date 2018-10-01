@@ -108,7 +108,9 @@ export class ModelService {
   }
 
   private loadTypes(pattern: string): string[] {
-    const paths = globSync(pattern);
+    const paths = globSync(pattern).filter(
+      x => x.indexOf('node_modules') === -1,
+    );
     return paths.map(path => readFileSync(path, 'utf8'));
   }
 
