@@ -89,7 +89,8 @@ export class ModelEntity {
         if (field.isReference()) {
           fields[field.name + '_id'] = {
             type: GraphQLID,
-            resolve: parent => parent[fieldName].id,
+            resolve: parent =>
+              (parent[fieldName] && parent[fieldName].id) || null,
           };
         }
         if (field.isReferenceList()) {
