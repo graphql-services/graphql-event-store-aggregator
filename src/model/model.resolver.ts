@@ -1,7 +1,7 @@
 import { FindManyOptions, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { DatabaseService } from '../database/database.service';
-import { Entity } from './types/entity.model';
+import { ModelEntity } from './types/entity.model';
 
 export interface FieldSelection {
   [key: string]: FieldSelection | null;
@@ -14,7 +14,7 @@ const onlyUnique = (value, index, self) => {
 export class ModelResolver {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async resolveOne(entity: Entity, args, fields: FieldSelection) {
+  async resolveOne(entity: ModelEntity, args, fields: FieldSelection) {
     fields = { items: fields };
     args.limit = 1;
     const res = await this.resolve(entity, args, fields);
@@ -22,7 +22,7 @@ export class ModelResolver {
     return null;
   }
 
-  async resolve(entity: Entity, args, fields: FieldSelection) {
+  async resolve(entity: ModelEntity, args, fields: FieldSelection) {
     const order = args.sort
       ? args.sort.reduce(
           (current, prev) => Object.assign({}, current, prev),

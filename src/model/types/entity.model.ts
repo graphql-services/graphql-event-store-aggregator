@@ -29,7 +29,7 @@ const entityInterface = new GraphQLInterfaceType({
   },
 });
 
-export class Entity {
+export class ModelEntity {
   fields: { [key: string]: EntityField };
 
   constructor(private readonly config: { name: string; schema: ModelSchema }) {

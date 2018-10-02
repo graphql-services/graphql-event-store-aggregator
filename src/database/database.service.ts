@@ -6,19 +6,24 @@ import {
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
-import { Entity, ModelSchema } from '../model/model.schema';
+import { ModelEntity, ModelSchema } from '../model/model.schema';
 import { schemaForEntity } from './database.schema';
 import { DriverUtils } from './driver.utils';
+import { Meta } from './entities/Meta';
+import { ENV } from '../env';
 
 @Injectable()
 export class DatabaseService {
   private connection?: Connection;
 
+  private repositories: { [key: string]: Repository<any> } = {};
+  metadataRepository: Repository<Meta>;
+
   private async initializeConnection(entities: EntitySchema<any>[]) {
     const options = DriverUtils.getConnectionOptions();
     const connection = await createConnection({
-      entities,
-      // logging: true,
+      entities: [Meta, ...entities],
+      logging: !!ENV.DEBUG,
       ...options,
     });
 
@@ -33,14 +38,15 @@ export class DatabaseService {
     for (const entity of schema.entities) {
       this.initializeRepository(entity);
     }
+
+    this.metadataRepository = this.connection.getRepository(Meta);
   }
 
   async close() {
     if (this.connection) await this.connection.close();
   }
 
-  private repositories: { [key: string]: Repository<any> } = {};
-  initializeRepository(entity: Entity) {
+  initializeRepository(entity: ModelEntity) {
     if (!this.repositories[entity.name]) {
       const connection = this.connection;
       this.repositories[entity.name] = connection.getRepository(
@@ -56,14 +62,3 @@ export class DatabaseService {
     return this.repositories[entityName];
   }
 }
-
-// export const DatabaseServiceProvider = {
-//   provide: DatabaseService,
-//   useFactory: async () => {
-//     // global.console.log(modelService)
-//     const service = new DatabaseService();
-//     // await service.initialize(modelService.modelSchema);
-//     return service;
-//   },
-//   inject: [ModelService],
-// };

@@ -1,4 +1,11 @@
-import { Catch, Controller, Post, Body, HttpException } from '@nestjs/common';
+import {
+  Catch,
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  Get,
+} from '@nestjs/common';
 
 import { EventsService } from './events.service';
 import { StoreEvent } from './store-event.model';
@@ -7,6 +14,12 @@ import { StoreEvent } from './store-event.model';
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
+
+  @Get('/latest')
+  async fetchLatestEvent(): Promise<StoreEvent> {
+    return this.eventsService.getLatestEvent();
+  }
+
   @Post()
   async importEvents(@Body() body): Promise<string> {
     try {

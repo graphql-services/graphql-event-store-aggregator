@@ -9,16 +9,16 @@ import {
   NamedTypeNode,
 } from 'graphql';
 
-import { Entity } from './types/entity.model';
+import { ModelEntity } from './types/entity.model';
 import { EntityField } from './types/entityfield.model';
 import { EntityFieldDirective } from './types/entityfielddirective.model';
 
-export { Entity } from './types/entity.model';
+export { ModelEntity } from './types/entity.model';
 export { EntityField } from './types/entityfield.model';
 export { EntityFieldDirective } from './types/entityfielddirective.model';
 
 export class ModelSchema {
-  entities: Entity[] = [];
+  entities: ModelEntity[] = [];
 
   constructor(string: string) {
     const schema = buildSchema(`scalar DateTime\n${string}`);
@@ -28,7 +28,7 @@ export class ModelSchema {
       if (_def.kind === 'ObjectTypeDefinition') {
         const def = _def as ObjectTypeDefinitionNode;
         const name = def.name.value;
-        const entity = new Entity({
+        const entity = new ModelEntity({
           name,
           schema: this,
         });
@@ -51,7 +51,7 @@ export class ModelSchema {
     }
   }
 
-  getEntityForName(name: string): Entity | null {
+  getEntityForName(name: string): ModelEntity | null {
     for (const entity of this.entities) {
       if (entity.name === name) {
         return entity;

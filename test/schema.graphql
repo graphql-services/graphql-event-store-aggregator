@@ -1,0 +1,20 @@
+type User {
+  username: String!
+  password: String
+  company: Company @relation(inverse: employees)
+}
+
+enum RoleType {
+  ADMIN
+  USER
+}
+
+type Role {
+  name: String
+  type: RoleType
+}
+
+type Company {
+  name: String!
+  employees: [User!]! @relation(inverse: company)
+}

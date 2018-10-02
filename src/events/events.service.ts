@@ -3,8 +3,9 @@ import { Injectable } from '@nestjs/common';
 
 import { StoreEvent, StoreEventType } from './store-event.model';
 import { DatabaseService } from '../database/database.service';
-import { Entity } from '../model/model.schema';
+import { ModelEntity } from '../model/model.schema';
 import { ModelService } from '../model/model.service';
+import { Meta } from '../database/entities/Meta';
 
 @Injectable()
 export class EventsService {
@@ -31,17 +32,37 @@ export class EventsService {
   private async handleCreateEvent(
     event: StoreEvent,
     repo: Repository<any>,
-    entity: Entity,
+    entity: ModelEntity,
   ) {
     const data = this.getDataForStorage(event.data, entity);
     const item = repo.create({ id: event.entityId, ...data });
     await repo.save(item);
+    await this.setLatestEvent(event);
+  }
+
+  async getLatestEvent(): Promise<StoreEvent | undefined> {
+    const meta = await this.databaseService.metadataRepository.findOne(
+      'latestEventData',
+    );
+
+    if (meta) {
+      return JSON.parse(meta.value) as StoreEvent;
+    }
+
+    return undefined;
+  }
+  private async setLatestEvent(event: StoreEvent) {
+    await this.databaseService.metadataRepository.delete('latestEventData');
+    const meta = new Meta();
+    meta.key = 'latestEventData';
+    meta.value = JSON.stringify(event);
+    await this.databaseService.metadataRepository.save(meta);
   }
 
   private async handleUpdateEvent(
     event: StoreEvent,
     repo: Repository<any>,
-    entity: Entity,
+    entity: ModelEntity,
   ) {
     const item = await repo.findOne({
       where: { id: event.entityId },
@@ -57,7 +78,7 @@ export class EventsService {
     await repo.delete(event.entityId);
   }
 
-  private getDataForStorage(data: any, entity: Entity): any {
+  private getDataForStorage(data: any, entity: ModelEntity): any {
     const result = {};
     for (const fieldName of Object.keys(entity.fields)) {
       const field = entity.fields[fieldName];

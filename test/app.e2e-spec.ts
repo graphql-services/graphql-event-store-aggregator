@@ -90,4 +90,24 @@ describe('AppController (e2e)', () => {
         });
     });
   }
+
+  it('should return latest event', async () => {
+    const events = cases[0].events;
+    const latestEvent = events[events.length - 1];
+
+    for (const event of events) {
+      await test
+        .post('/events')
+        .send(event)
+        .expect(201)
+        .expect('OK');
+    }
+
+    await test
+      .get('/events/latest')
+      .expect(200)
+      .expect(res => {
+        expect(JSON.stringify(res.body)).toBe(JSON.stringify(latestEvent));
+      });
+  });
 });

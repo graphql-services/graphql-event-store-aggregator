@@ -6,10 +6,10 @@ import {
   JoinTableOptions,
 } from 'typeorm';
 
-import { Entity, EntityField } from '../model/model.schema';
+import { ModelEntity, EntityField } from '../model/model.schema';
 import { getNamedType, GraphQLInt } from 'graphql';
 
-export const schemaForEntity = (entity: Entity): EntitySchema => {
+export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
   const columns: { [key: string]: EntitySchemaColumnOptions } = {};
 
   const relations: { [key: string]: EntitySchemaRelationOptions } = {};
@@ -45,7 +45,7 @@ const columnOptionsForField = (
 
 const relationshipOptionsForField = (
   field: EntityField,
-  entity: Entity,
+  entity: ModelEntity,
 ): EntitySchemaRelationOptions | undefined => {
   const relationDirective = field.getDirective('relation');
 

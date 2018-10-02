@@ -14,7 +14,7 @@ import {
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 
-import { Entity } from './entity.model';
+import { ModelEntity } from './entity.model';
 import { EntityFieldDirective } from './entityfielddirective.model';
 
 export class EntityField {
@@ -22,7 +22,7 @@ export class EntityField {
     private readonly config: {
       name: string;
       type: GraphQLType;
-      entity: Entity;
+      entity: ModelEntity;
       directives: EntityFieldDirective[];
     },
   ) {}
@@ -41,7 +41,7 @@ export class EntityField {
     return this.config.name;
   }
 
-  get entity(): Entity {
+  get entity(): ModelEntity {
     return this.config.entity;
   }
 
