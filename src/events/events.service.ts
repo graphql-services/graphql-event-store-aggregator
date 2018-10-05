@@ -82,11 +82,14 @@ export class EventsService {
     const result = {};
     for (const fieldName of Object.keys(entity.fields)) {
       const field = entity.fields[fieldName];
-      if (field.isReference() && data[fieldName + '_id']) {
+      if (
+        (field.isReference() && data[fieldName + '_id']) ||
+        data[fieldName + '_id'] === null
+      ) {
         result[fieldName] = { id: data[fieldName + '_id'] };
       } else if (field.isReferenceList() && data[fieldName + '_ids']) {
         result[fieldName] = data[fieldName + '_ids'].map(x => ({ id: x }));
-      } else if (data[fieldName]) {
+      } else if (data[fieldName] || data[fieldName] === null) {
         result[fieldName] = data[fieldName];
       }
     }

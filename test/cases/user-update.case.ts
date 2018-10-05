@@ -7,7 +7,7 @@ const isoUpdateDate = '2018-10-02T06:15:53.758Z';
 const updateDate = new Date(isoUpdateDate);
 
 export const data: ImportEventCase = {
-  name: 'create and delete user',
+  name: 'create and update user',
   events: [
     {
       id: '1',
@@ -16,6 +16,7 @@ export const data: ImportEventCase = {
       data: {
         id: 'a1',
         username: 'john.doe',
+        password: 'secretpassword',
         createdAt: creationDate,
       },
       type: StoreEventType.CREATED,
@@ -28,6 +29,7 @@ export const data: ImportEventCase = {
       data: {
         id: 'a1',
         username: 'john.doe2',
+        password: null,
         updatedAt: updateDate,
       },
       type: StoreEventType.UPDATED,
@@ -37,7 +39,7 @@ export const data: ImportEventCase = {
   query: `
     query {
         users {
-            items { id username createdAt updatedAt }
+            items { id username password createdAt updatedAt }
             count
         }
     }
@@ -48,6 +50,7 @@ export const data: ImportEventCase = {
         {
           id: 'a1',
           username: 'john.doe2',
+          password: null,
           createdAt: isoCreationDate,
           updatedAt: isoUpdateDate,
         },
