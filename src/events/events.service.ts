@@ -6,6 +6,7 @@ import { DatabaseService } from '../database/database.service';
 import { ModelEntity } from '../model/model.schema';
 import { ModelService } from '../model/model.service';
 import { Meta } from '../database/entities/Meta';
+import { log } from '../logger';
 
 @Injectable()
 export class EventsService {
@@ -19,6 +20,8 @@ export class EventsService {
     const repo = db.repositoryForEntityName(event.entity);
     const entity = this.modelService.modelSchema.getEntityForName(event.entity);
 
+    log('received event:', JSON.stringify(event));
+
     switch (event.type) {
       case StoreEventType.CREATED:
         return this.handleCreateEvent(event, repo, entity);
@@ -27,17 +30,6 @@ export class EventsService {
       case StoreEventType.DELETED:
         return this.handleDeleteEvent(event, repo);
     }
-  }
-
-  private async handleCreateEvent(
-    event: StoreEvent,
-    repo: Repository<any>,
-    entity: ModelEntity,
-  ) {
-    const data = this.getDataForStorage(event.data, entity);
-    const item = repo.create({ id: event.entityId, ...data });
-    await repo.save(item);
-    await this.setLatestEvent(event);
   }
 
   async getLatestEvent(): Promise<StoreEvent | undefined> {
@@ -59,6 +51,18 @@ export class EventsService {
     await this.databaseService.metadataRepository.save(meta);
   }
 
+  private async handleCreateEvent(
+    event: StoreEvent,
+    repo: Repository<any>,
+    entity: ModelEntity,
+  ) {
+    const data = this.getDataForStorage(event.data, entity);
+    log('data for create:', data);
+    const item = repo.create({ id: event.entityId, ...data });
+    await repo.save(item);
+    await this.setLatestEvent(event);
+  }
+
   private async handleUpdateEvent(
     event: StoreEvent,
     repo: Repository<any>,
@@ -69,6 +73,7 @@ export class EventsService {
     });
     if (item) {
       const data = this.getDataForStorage(event.data, entity);
+      log('data for update:', data);
       repo.merge(item, data);
       await repo.save(item);
     }
