@@ -22,4 +22,3 @@ push: login
 	# docker push $(GIT_TAG)
 	# docker push $(BUILD_TAG)
 	docker push $(LATEST_TAG)
-	docker push inloopeu/kontena-git-cli
