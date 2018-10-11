@@ -18,9 +18,11 @@ export const data: ImportEventCase = {
         username: 'john.doe',
         password: 'secretpassword',
         createdAt: creationDate,
+        createdBy: '123456',
       },
       type: StoreEventType.CREATED,
       date: creationDate,
+      principalId: '123456',
     },
     {
       id: '2',
@@ -31,15 +33,17 @@ export const data: ImportEventCase = {
         username: 'john.doe2',
         password: null,
         updatedAt: updateDate,
+        updatedBy: 'abcdef',
       },
       type: StoreEventType.UPDATED,
       date: updateDate,
+      principalId: 'abcdef',
     },
   ],
   query: `
     query {
         users {
-            items { id username password createdAt updatedAt }
+            items { id username password createdAt createdBy updatedAt updatedBy }
             count
         }
     }
@@ -52,7 +56,9 @@ export const data: ImportEventCase = {
           username: 'john.doe2',
           password: null,
           createdAt: isoCreationDate,
+          createdBy: '123456',
           updatedAt: isoUpdateDate,
+          updatedBy: 'abcdef',
         },
       ],
       count: 1,

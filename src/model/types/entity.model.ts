@@ -12,6 +12,7 @@ import {
   GraphQLInputObjectType,
   GraphQLInputFieldConfigMap,
   GraphQLEnumValueConfigMap,
+  GraphQLString,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 
@@ -25,7 +26,9 @@ const entityInterface = new GraphQLInterfaceType({
       type: new GraphQLNonNull(GraphQLID),
     },
     createdAt: { type: new GraphQLNonNull(GraphQLDateTime) },
+    createdBy: { type: GraphQLID },
     updatedAt: { type: GraphQLDateTime },
+    updatedBy: { type: GraphQLID },
   },
 });
 
@@ -46,9 +49,21 @@ export class ModelEntity {
         entity: this,
         directives: [],
       }),
+      updatedBy: new EntityField({
+        name: 'updatedBy',
+        type: GraphQLID,
+        entity: this,
+        directives: [],
+      }),
       createdAt: new EntityField({
         name: 'createdAt',
         type: new GraphQLNonNull(GraphQLDateTime),
+        entity: this,
+        directives: [],
+      }),
+      createdBy: new EntityField({
+        name: 'createdBy',
+        type: GraphQLID,
         entity: this,
         directives: [],
       }),
@@ -104,12 +119,8 @@ export class ModelEntity {
           };
         }
       }
-      // fields.id = { type: new GraphQLNonNull(GraphQLID) };
-      // fields.createdAt = { type: new GraphQLNonNull(GraphQLDateTime) };
-      // fields.updatedAt = { type: GraphQLDateTime };
       this._fields = fields;
     }
-
     return this._fields;
   }
 

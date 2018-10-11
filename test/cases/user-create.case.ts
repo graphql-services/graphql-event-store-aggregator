@@ -15,6 +15,7 @@ export const data: ImportEventCase = {
         id: 'a1',
         username: 'john.doe',
         createdAt: creationDate,
+        createdBy: '123456',
       },
       type: StoreEventType.CREATED,
       date: creationDate,
@@ -23,7 +24,7 @@ export const data: ImportEventCase = {
   query: `
     query {
         users {
-            items { id username createdAt updatedAt company { id } company_id }
+            items { id username createdAt updatedAt createdBy updatedBy company { id } company_id }
             count
         }
     }
@@ -38,6 +39,8 @@ export const data: ImportEventCase = {
           updatedAt: null,
           company: null,
           company_id: null,
+          createdBy: '123456',
+          updatedBy: null,
         },
       ],
       count: 1,

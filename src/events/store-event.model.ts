@@ -10,8 +10,11 @@ export interface StoreEventData {
 export interface StoreEventOutputData extends StoreEventData {
   id: string;
   createdAt: Date;
+  createdBy?: string;
   updatedAt?: Date;
+  updatedBy?: string;
   deletedAt?: Date;
+  deletedBy?: string;
 }
 
 export interface StoreEvent {
@@ -21,4 +24,5 @@ export interface StoreEvent {
   data: StoreEventData | null;
   type: StoreEventType;
   date: Date;
+  principalId?: string;
 }
