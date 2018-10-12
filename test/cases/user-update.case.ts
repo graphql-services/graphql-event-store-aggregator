@@ -17,6 +17,7 @@ export const data: ImportEventCase = {
         id: 'a1',
         username: 'john.doe',
         password: 'secretpassword',
+        firstname: 'John',
         createdAt: creationDate,
         createdBy: '123456',
       },
@@ -32,6 +33,7 @@ export const data: ImportEventCase = {
         id: 'a1',
         username: 'john.doe2',
         password: null,
+        firstname: '',
         updatedAt: updateDate,
         updatedBy: 'abcdef',
       },
@@ -43,7 +45,7 @@ export const data: ImportEventCase = {
   query: `
     query {
         users {
-            items { id username password createdAt createdBy updatedAt updatedBy }
+            items { id username password firstname createdAt createdBy updatedAt updatedBy }
             count
         }
     }
@@ -55,6 +57,7 @@ export const data: ImportEventCase = {
           id: 'a1',
           username: 'john.doe2',
           password: null,
+          firstname: '',
           createdAt: isoCreationDate,
           createdBy: '123456',
           updatedAt: isoUpdateDate,

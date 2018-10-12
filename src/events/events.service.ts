@@ -94,7 +94,7 @@ export class EventsService {
         result[fieldName] = { id: data[fieldName + '_id'] };
       } else if (field.isReferenceList() && data[fieldName + '_ids']) {
         result[fieldName] = data[fieldName + '_ids'].map(x => ({ id: x }));
-      } else if (data[fieldName] || data[fieldName] === null) {
+      } else if (typeof data[fieldName] !== 'undefined') {
         result[fieldName] = data[fieldName];
       }
     }
