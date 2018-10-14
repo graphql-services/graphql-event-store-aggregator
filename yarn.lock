@@ -155,6 +155,12 @@
   version "9.6.30"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.30.tgz#1ecf83eaf7ac2d0dada7a9d61a1e4e7a6183ac06"
 
+"@types/nsqjs@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@types/nsqjs/-/nsqjs-0.9.0.tgz#cb732064b85029e06ee27edc66648dad0c761a2b"
+  dependencies:
+    "@types/node" "*"
+
 "@types/pluralize@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/pluralize/-/pluralize-0.0.29.tgz#6ffa33ed1fc8813c469b859681d09707eb40d03c"
