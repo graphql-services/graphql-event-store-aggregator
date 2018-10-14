@@ -2,6 +2,8 @@ type User {
   username: String!
   password: String
   firstname: String
+  retired: Boolean
+  retired2: Boolean
   company: Company @relation(inverse: employees)
 }
 

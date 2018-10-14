@@ -7,7 +7,13 @@ import {
 } from 'typeorm';
 
 import { ModelEntity, EntityField } from '../model/model.schema';
-import { getNamedType, GraphQLInt } from 'graphql';
+import {
+  getNamedType,
+  GraphQLInt,
+  GraphQLBoolean,
+  GraphQLFloat,
+} from 'graphql';
+import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 
 export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
   const columns: { [key: string]: EntitySchemaColumnOptions } = {};
@@ -137,10 +143,13 @@ const columnTypeForField = (field: EntityField): ColumnType => {
   const type = getNamedType(field.outputType);
   switch (type) {
     case GraphQLInt:
+    case GraphQLFloat:
       return Number;
-  }
-  if (type === GraphQLInt) {
-    return Number;
+    case GraphQLBoolean:
+      return Boolean;
+    case GraphQLDate:
+    case GraphQLDateTime:
+      return Date;
   }
   return String;
 };
