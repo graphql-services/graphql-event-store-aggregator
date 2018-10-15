@@ -37,7 +37,17 @@ export class AppModule implements NestModule {
 
     const schema = this.appService.getSchema();
     consumer
-      .apply(graphqlExpress(req => ({ schema, rootValue: req, tracing: true })))
+      .apply(
+        graphqlExpress(req => ({
+          schema,
+          rootValue: req,
+          tracing: true,
+          // formatError: (e: Error) => {
+          //   global.console.log(e.stack);
+          //   return {message:e.message};
+          // },
+        })),
+      )
       .forRoutes({ path: '/graphql', method: RequestMethod.POST })
       .apply(expressPlayground({ endpoint: '/graphql' }))
       .forRoutes({ path: '/graphql', method: RequestMethod.GET });

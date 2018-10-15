@@ -44,11 +44,19 @@ export class ModelService {
     return this.getFieldSelection(selectionSet);
   }
   getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
-    const result = {};
+    let result = {};
     if (selectionNode) {
       for (const selection of selectionNode.selections) {
-        const node = selection as FieldNode;
-        result[node.name.value] = this.getFieldSelection(node.selectionSet);
+        if (selection.kind === 'Field') {
+          result[selection.name.value] = this.getFieldSelection(
+            selection.selectionSet,
+          );
+        } else if (selection.kind === 'InlineFragment') {
+          result = {
+            ...result,
+            ...this.getFieldSelection(selection.selectionSet),
+          };
+        }
       }
     }
     return result;
