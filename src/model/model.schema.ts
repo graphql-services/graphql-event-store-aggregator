@@ -21,7 +21,9 @@ export class ModelSchema {
   entities: ModelEntity[] = [];
 
   constructor(string: string) {
-    const schema = buildSchema(`scalar DateTime\n${string}`);
+    const schema = buildSchema(
+      `directive @relation(inverse: String) on FIELD_DEFINITION\nscalar DateTime\n${string}`,
+    );
     const document = parse(string);
 
     for (const _def of document.definitions) {
