@@ -90,6 +90,7 @@ const relationshipOptionsForField = (
       target,
       inverseSide,
       type: 'many-to-many',
+      onDelete: 'SET NULL',
       joinTable:
         isPrimaryRelationship(field, inverseField) &&
         joinTableOptionsForManyToMany(field, inverseField),
@@ -99,12 +100,14 @@ const relationshipOptionsForField = (
       target,
       inverseSide,
       type: 'many-to-one',
+      onDelete: 'SET NULL',
       joinColumn: { name: `${field.name}_id` },
     };
   } else if (field.isReferenceList() && inverseField.isReference()) {
     return {
       target,
       inverseSide,
+      onDelete: 'SET NULL',
       type: 'one-to-many',
     };
   } else if (field.isReference() && inverseField.isReference()) {
