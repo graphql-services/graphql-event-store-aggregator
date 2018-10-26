@@ -13,6 +13,7 @@ import {
   GraphQLNamedType,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
+import { GraphQLPasswordHash } from 'gql-directives';
 
 import { ModelEntity } from './entity.model';
 import { EntityFieldDirective } from './entityfielddirective.model';
@@ -73,10 +74,15 @@ export class EntityField {
     }
 
     const namedType = getNamedType(this.config.type);
-    if (namedType.name === 'DateTime') {
-      return this.isNonNull()
-        ? new GraphQLNonNull(GraphQLDateTime)
-        : GraphQLDateTime;
+    switch (namedType.name) {
+      case 'DateTime':
+        return this.isNonNull()
+          ? new GraphQLNonNull(GraphQLDateTime)
+          : GraphQLDateTime;
+      case 'PasswordHash':
+        return this.isNonNull()
+          ? new GraphQLNonNull(GraphQLPasswordHash)
+          : GraphQLPasswordHash;
     }
 
     return assertOutputType(this.config.type);
@@ -90,10 +96,15 @@ export class EntityField {
     }
 
     const namedType = getNamedType(this.config.type);
-    if (namedType.name === 'DateTime') {
-      return this.isNonNull()
-        ? new GraphQLNonNull(GraphQLDateTime)
-        : GraphQLDateTime;
+    switch (namedType.name) {
+      case 'DateTime':
+        return this.isNonNull()
+          ? new GraphQLNonNull(GraphQLDateTime)
+          : GraphQLDateTime;
+      case 'PasswordHash':
+        return this.isNonNull()
+          ? new GraphQLNonNull(GraphQLPasswordHash)
+          : GraphQLPasswordHash;
     }
 
     return assertInputType(this.config.type);

@@ -22,7 +22,7 @@ export class ModelSchema {
 
   constructor(string: string) {
     const schema = buildSchema(
-      `directive @relation(inverse: String) on FIELD_DEFINITION\nscalar DateTime\n${string}`,
+      `directive @relation(inverse: String) on FIELD_DEFINITION\nscalar DateTime\nscalar PasswordHash\n${string}`,
     );
     const document = parse(string);
 
