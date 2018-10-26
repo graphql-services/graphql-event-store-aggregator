@@ -1,5 +1,5 @@
 OWNER=graphql
-IMAGE_NAME=event-store
+IMAGE_NAME=event-store-aggregator
 QNAME=$(OWNER)/$(IMAGE_NAME)
 
 TAG=$(QNAME):`echo $(TRAVIS_BRANCH) | sed 's/master/latest/;s/develop/unstable/'`
