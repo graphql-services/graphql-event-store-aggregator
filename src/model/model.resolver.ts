@@ -33,8 +33,9 @@ export class ModelResolver {
     const options: FindManyOptions = {};
     if (args.offset) options.skip = args.offset;
     if (args.limit) options.take = args.limit;
-    if (args.filter) options.where = args.filter;
-    if (order) options.order = order;
+    if (args.filter) options.where = { ...args.filter };
+    // else options.where = { username: 'aaa' };
+    if (order) options.order = { ...order };
 
     // const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
     // const fields = this.getFieldSelection(selectionSet);
@@ -51,7 +52,6 @@ export class ModelResolver {
     //   .offset(args.offset)
     //   .where(args.filter)
     //   .orderBy(order);
-
     if (fields.items) {
       options.select = [
         'id',
