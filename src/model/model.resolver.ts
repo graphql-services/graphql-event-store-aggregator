@@ -115,7 +115,8 @@ export class ModelResolver {
 
   async resolve(entity: ModelEntity, args, fields: FieldSelection) {
     const query = this.query(entity, args, fields.items || {});
-    const [items, count] = await query.getManyAndCount();
+    const items = await query.getMany();
+    const count = await query.getCount();
     return { items, count };
     // global.console.log(
     //   '??!!',
