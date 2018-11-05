@@ -63,8 +63,14 @@ export class ModelResolver {
           const parts = args.q.split(' ');
           for (const part of parts) {
             for (const column of stringColumns) {
-              _qb.orWhere(`SELF.${column} LIKE '${part}%'`);
-              _qb.orWhere(`SELF.${column} LIKE '% ${part}%'`);
+              const _val = part.replace(/\*/g, '%').replace(/\?/g, '_');
+              _qb.orWhere(
+                `SELF.${column} LIKE :value1 OR SELF.${column} LIKE :value2`,
+                {
+                  value1: `${_val}%`,
+                  value2: `% ${_val}%`,
+                },
+              );
             }
           }
         }),
