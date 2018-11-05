@@ -7,8 +7,8 @@ import {
   GraphQLResolveInfo,
   GraphQLList,
   SelectionSetNode,
-  FieldNode,
   GraphQLID,
+  GraphQLString,
 } from 'graphql';
 import * as pluralize from 'pluralize';
 import { sync as globSync } from 'glob';
@@ -18,6 +18,7 @@ import { camelCase } from 'voca';
 import { ModelSchema } from './model.schema';
 import { ModelResolver, FieldSelection } from './model.resolver';
 import { DatabaseService } from '../database/database.service';
+import { ModelEntity } from './types/entity.model';
 
 const pluralizeFn = (pluralize as any).default || pluralize; // jest handles default export differently
 
@@ -70,11 +71,22 @@ export class ModelService {
     const resolver = new ModelResolver(databaseService);
 
     for (const entity of modelSchema.entities) {
+      const TypeFilter = {
+        type: entity.getFilterInputType(),
+        description: 'Object used for filtering results',
+      };
+      const TypeQ = {
+        type: GraphQLString,
+        description:
+          'Query string for entities filtering. Each word is searched in any string column.',
+      };
+
       queryFields[camelCase(entity.name)] = {
         type: entity.getObjectType(),
         args: {
           id: { type: GraphQLID },
-          filter: { type: entity.getFilterInputType() },
+          filter: TypeFilter,
+          q: TypeQ,
         },
         resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
           if (args.id) {
@@ -91,10 +103,18 @@ export class ModelService {
       queryFields[pluralizeFn(camelCase(entity.name))] = {
         type: entity.getObjectResultType(),
         args: {
-          offset: { type: GraphQLInt },
-          limit: { type: GraphQLInt },
+          offset: {
+            type: GraphQLInt,
+            description: 'Skip number of returned rows',
+          },
+          limit: {
+            type: GraphQLInt,
+            description: 'Limit number of returned rows',
+            defaultValue: 30,
+          },
           sort: { type: new GraphQLList(entity.getOrderInputType()) },
-          filter: { type: entity.getFilterInputType() },
+          filter: TypeFilter,
+          q: TypeQ,
         },
         resolve: async (parent, args, ctx, info: GraphQLResolveInfo) => {
           return resolver.resolve(

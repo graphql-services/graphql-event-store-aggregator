@@ -11,12 +11,16 @@ import {
   assertInputType,
   getNamedType,
   GraphQLNamedType,
+  GraphQLString,
+  GraphQLScalarType,
+  isSpecifiedScalarType,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 import { GraphQLPasswordHash } from 'gql-directives';
 
 import { ModelEntity } from './entity.model';
 import { EntityFieldDirective } from './entityfielddirective.model';
+import { getType } from 'mime';
 
 export class EntityField {
   constructor(
@@ -28,6 +32,10 @@ export class EntityField {
     },
   ) {}
 
+  isSearchable(): boolean {
+    const fieldType = getNullableType(this.config.type);
+    return fieldType === GraphQLID || fieldType === GraphQLString;
+  }
   isReference(): boolean {
     return getNullableType(this.config.type) instanceof GraphQLObjectType;
   }
