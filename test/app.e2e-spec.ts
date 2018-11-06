@@ -88,7 +88,7 @@ describe('AppController (e2e)', () => {
         .send({
           query: caseItem.query,
         })
-        .expect(200)
+        // .expect(200)
         .expect(res => {
           expect(res.body.errors).toBeUndefined();
           const data = res.body.data;

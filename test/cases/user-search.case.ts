@@ -54,7 +54,7 @@ export const data: ImportEventCase = {
   ],
   query: `
     query {
-        users(q:"jo?n",filter:{password:"doe"}) {
+        users(q:"jo?n",filter:{password:"doe"},sort: [USERNAME_ASC, CREATEDAT_DESC]) {
           items {
             id username createdAt updatedAt createdBy updatedBy company { id } company_id
           }
