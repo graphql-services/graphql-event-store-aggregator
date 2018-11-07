@@ -46,7 +46,9 @@ export class ModelResolver {
     if (args.filter) {
       for (const key of Object.keys(args.filter)) {
         const value = args.filter[key];
-        qb.andWhere(`SELF.${key} = :value`, { value });
+        const obj = {};
+        obj[`value${key}`] = value;
+        qb.andWhere(`SELF.${key} = :value${key}`, obj);
       }
     }
     if (args.q) {
