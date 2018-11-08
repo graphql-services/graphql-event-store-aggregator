@@ -72,7 +72,7 @@ describe('AppController (e2e)', () => {
   });
 
   for (const caseItem of cases) {
-    it(caseItem.name, async () => {
+    (caseItem.only ? it.only : it)(caseItem.name, async () => {
       const events = caseItem.events;
 
       for (const event of events) {

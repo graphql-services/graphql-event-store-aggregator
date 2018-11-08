@@ -21,7 +21,8 @@ export const data: ImportEventCase = {
       date: creationDate,
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         users {
             items {
@@ -35,16 +36,19 @@ export const data: ImportEventCase = {
         }
     }
   `,
-  expectedResult: {
-    users: {
-      items: [
-        {
-          id: 'a1',
-          username: 'john.doe',
-          createdBy: '123456',
-        },
-      ],
-      count: 1,
+  ],
+  expectedResults: [
+    {
+      users: {
+        items: [
+          {
+            id: 'a1',
+            username: 'john.doe',
+            createdBy: '123456',
+          },
+        ],
+        count: 1,
+      },
     },
-  },
+  ],
 };

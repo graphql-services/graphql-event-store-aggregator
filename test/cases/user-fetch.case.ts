@@ -34,23 +34,27 @@ export const data: ImportEventCase = {
       date: creationDate,
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         user(filter:{username:"jane"}) {
           id username createdAt updatedAt createdBy updatedBy company { id } company_id
         }
     }
   `,
-  expectedResult: {
-    user: {
-      id: 'a2',
-      username: 'jane',
-      createdAt: isoCreationDate,
-      updatedAt: null,
-      company: null,
-      company_id: null,
-      createdBy: '123456',
-      updatedBy: null,
+  ],
+  expectedResults: [
+    {
+      user: {
+        id: 'a2',
+        username: 'jane',
+        createdAt: isoCreationDate,
+        updatedAt: null,
+        company: null,
+        company_id: null,
+        createdBy: '123456',
+        updatedBy: null,
+      },
     },
-  },
+  ],
 };

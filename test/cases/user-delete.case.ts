@@ -30,7 +30,8 @@ export const data: ImportEventCase = {
       date: deletionDate,
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         users {
             items { id username createdAt updatedAt }
@@ -38,10 +39,13 @@ export const data: ImportEventCase = {
         }
     }
   `,
-  expectedResult: {
-    users: {
-      items: [],
-      count: 0,
+  ],
+  expectedResults: [
+    {
+      users: {
+        items: [],
+        count: 0,
+      },
     },
-  },
+  ],
 };

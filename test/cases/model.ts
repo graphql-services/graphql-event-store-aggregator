@@ -1,8 +1,9 @@
 import { StoreEvent } from '../../src/events/store-event.model';
 
 export interface ImportEventCase {
+  only?: boolean;
   name: string;
-  query: string;
-  expectedResult: any;
+  queries: string[];
+  expectedResults: any[];
   events: StoreEvent[];
 }

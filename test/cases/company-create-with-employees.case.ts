@@ -33,7 +33,8 @@ export const data: ImportEventCase = {
       date: creationDate,
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         companies {
             items { id name createdAt updatedAt employees { id username } }
@@ -41,23 +42,26 @@ export const data: ImportEventCase = {
         }
     }
   `,
-  expectedResult: {
-    companies: {
-      items: [
-        {
-          id: 'c1',
-          name: 'test company',
-          employees: [
-            {
-              id: 'a1',
-              username: 'john.doe',
-            },
-          ],
-          createdAt: isoCreationDate,
-          updatedAt: null,
-        },
-      ],
-      count: 1,
+  ],
+  expectedResults: [
+    {
+      companies: {
+        items: [
+          {
+            id: 'c1',
+            name: 'test company',
+            employees: [
+              {
+                id: 'a1',
+                username: 'john.doe',
+              },
+            ],
+            createdAt: isoCreationDate,
+            updatedAt: null,
+          },
+        ],
+        count: 1,
+      },
     },
-  },
+  ],
 };

@@ -52,7 +52,8 @@ export const data: ImportEventCase = {
       date: creationDate,
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         users(q:"jo?n",filter:{password:"doe"},sort: [USERNAME_ASC, CREATEDAT_DESC]) {
           items {
@@ -62,21 +63,24 @@ export const data: ImportEventCase = {
         }
     }
   `,
-  expectedResult: {
-    users: {
-      items: [
-        {
-          id: 'john.doe',
-          username: 'john',
-          createdAt: isoCreationDate,
-          updatedAt: null,
-          company: null,
-          company_id: null,
-          createdBy: '123456',
-          updatedBy: null,
-        },
-      ],
-      count: 1,
+  ],
+  expectedResults: [
+    {
+      users: {
+        items: [
+          {
+            id: 'john.doe',
+            username: 'john',
+            createdAt: isoCreationDate,
+            updatedAt: null,
+            company: null,
+            company_id: null,
+            createdBy: '123456',
+            updatedBy: null,
+          },
+        ],
+        count: 1,
+      },
     },
-  },
+  ],
 };

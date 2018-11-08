@@ -46,7 +46,8 @@ export const data: ImportEventCase = {
       principalId: 'abcdef',
     },
   ],
-  query: `
+  queries: [
+    `
     query {
         users {
             items { id username password firstname retired retired2 createdAt createdBy updatedAt updatedBy }
@@ -54,23 +55,26 @@ export const data: ImportEventCase = {
         }
     }
   `,
-  expectedResult: {
-    users: {
-      items: [
-        {
-          id: 'a1',
-          username: 'john.doe2',
-          password: null,
-          firstname: '',
-          retired: false,
-          retired2: true,
-          createdAt: isoCreationDate,
-          createdBy: '123456',
-          updatedAt: isoUpdateDate,
-          updatedBy: 'abcdef',
-        },
-      ],
-      count: 1,
+  ],
+  expectedResults: [
+    {
+      users: {
+        items: [
+          {
+            id: 'a1',
+            username: 'john.doe2',
+            password: null,
+            firstname: '',
+            retired: false,
+            retired2: true,
+            createdAt: isoCreationDate,
+            createdBy: '123456',
+            updatedAt: isoUpdateDate,
+            updatedBy: 'abcdef',
+          },
+        ],
+        count: 1,
+      },
     },
-  },
+  ],
 };
