@@ -63,6 +63,16 @@ export const data: ImportEventCase = {
         }
     }
   `,
+    `
+  query {
+      users(q:"jo?n",sort: [ID_ASC]) {
+        items {
+          id username company_id
+        }
+        count
+      }
+  }
+`,
   ],
   expectedResults: [
     {
@@ -80,6 +90,23 @@ export const data: ImportEventCase = {
           },
         ],
         count: 1,
+      },
+    },
+    {
+      users: {
+        items: [
+          {
+            id: 'john.doe',
+            username: 'john',
+            company_id: null,
+          },
+          {
+            id: 'john.test',
+            username: 'john',
+            company_id: null,
+          },
+        ],
+        count: 2,
       },
     },
   ],

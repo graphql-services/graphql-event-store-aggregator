@@ -5,7 +5,7 @@ const isoCreationDate = '2018-10-01T06:15:53.758Z';
 const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {
-  name: 'create company with employees',
+  name: 'search company with employees',
   // only: true,
   events: [
     {
@@ -33,24 +33,28 @@ export const data: ImportEventCase = {
       type: StoreEventType.CREATED,
       date: creationDate,
     },
+    {
+      id: 'ccc',
+      entity: 'Company',
+      entityId: 'c2',
+      data: {
+        id: 'c2',
+        name: 'Another company',
+        createdAt: creationDate,
+      },
+      type: StoreEventType.CREATED,
+      date: creationDate,
+    },
   ],
   queries: [
     `
     query {
-        companies {
+        companies(q:"john.doe") {
             items { id name createdAt updatedAt employees { id username } }
             count
         }
     }
   `,
-    `
-  query {
-      companies {
-          items { id name createdAt updatedAt employees_ids }
-          count
-      }
-  }
-`,
   ],
   expectedResults: [
     {
@@ -65,20 +69,6 @@ export const data: ImportEventCase = {
                 username: 'john.doe',
               },
             ],
-            createdAt: isoCreationDate,
-            updatedAt: null,
-          },
-        ],
-        count: 1,
-      },
-    },
-    {
-      companies: {
-        items: [
-          {
-            id: 'c1',
-            name: 'test company',
-            employees_ids: ['a1'],
             createdAt: isoCreationDate,
             updatedAt: null,
           },

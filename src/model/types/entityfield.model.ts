@@ -12,15 +12,12 @@ import {
   getNamedType,
   GraphQLNamedType,
   GraphQLString,
-  GraphQLScalarType,
-  isSpecifiedScalarType,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 import { GraphQLPasswordHash } from 'gql-directives';
 
 import { ModelEntity } from './entity.model';
 import { EntityFieldDirective } from './entityfielddirective.model';
-import { getType } from 'mime';
 
 export class EntityField {
   constructor(
@@ -36,14 +33,34 @@ export class EntityField {
     const fieldType = getNullableType(this.config.type);
     return fieldType === GraphQLID || fieldType === GraphQLString;
   }
+
+  isRelationship(): boolean {
+    return this.isReference() || this.isReferenceList();
+  }
   isReference(): boolean {
     return getNullableType(this.config.type) instanceof GraphQLObjectType;
   }
   isReferenceList(): boolean {
-    return getNullableType(this.config.type) instanceof GraphQLList;
+    const type = getNullableType(this.config.type);
+    return (
+      type instanceof GraphQLList &&
+      getNullableType(type.ofType) instanceof GraphQLObjectType
+    );
   }
   isNonNull(): boolean {
     return this.config.type instanceof GraphQLNonNull;
+  }
+
+  targetEntity(): ModelEntity | undefined {
+    let type: GraphQLObjectType = null;
+    if (this.isReference()) {
+      type = getNullableType(this.config.type) as GraphQLObjectType;
+    } else if (this.isReferenceList()) {
+      type = getNullableType(
+        (getNullableType(this.config.type) as GraphQLList<any>).ofType,
+      );
+    }
+    return this.entity.schema.getEntityForName(type.name);
   }
 
   get name(): string {

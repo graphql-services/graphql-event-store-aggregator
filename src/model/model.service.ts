@@ -40,27 +40,49 @@ export class ModelService {
     return new ModelSchema(string);
   }
 
-  getFieldSelectionFromInfo(info: GraphQLResolveInfo): FieldSelection {
-    const selectionSet = info.fieldNodes[0].selectionSet as SelectionSetNode;
-    return this.getFieldSelection(selectionSet);
-  }
-  getFieldSelection(selectionNode: SelectionSetNode): FieldSelection {
-    let result = {};
-    if (selectionNode) {
-      for (const selection of selectionNode.selections) {
-        if (selection.kind === 'Field') {
-          result[selection.name.value] = this.getFieldSelection(
-            selection.selectionSet,
-          );
-        } else if (selection.kind === 'InlineFragment') {
-          result = {
-            ...result,
-            ...this.getFieldSelection(selection.selectionSet),
-          };
-        }
+  getFieldSelectionFromInfo(info: GraphQLResolveInfo): FieldSelection[] {
+    const selectionSet = info.fieldNodes[0].selectionSet; // as SelectionSetNode;
+
+    for (const selection of selectionSet.selections) {
+      if (selection.kind === 'Field' && selection.name.value === 'items') {
+        return this.getFieldSelection(selection.selectionSet);
       }
     }
-    return result;
+
+    if (info.fieldNodes[0].selectionSet.kind === 'SelectionSet') {
+      return this.getFieldSelection(selectionSet);
+    }
+    return [];
+  }
+  getFieldSelection(
+    selectionNode?: SelectionSetNode,
+    parentPaths: string[] = [],
+  ): FieldSelection[] {
+    if (selectionNode) {
+      let result: FieldSelection[] = [];
+      for (const selection of selectionNode.selections) {
+        if (selection.kind === 'Field') {
+          const item = { path: [...parentPaths, selection.name.value] };
+          if (selection.selectionSet) {
+            const childItems = this.getFieldSelection(
+              selection.selectionSet,
+              item.path,
+            );
+            result = [...result, ...childItems];
+          } else {
+            result.push(item);
+          }
+        } else if (selection.kind === 'InlineFragment') {
+          result = [
+            ...result,
+            ...this.getFieldSelection(selection.selectionSet, parentPaths),
+          ];
+        }
+      }
+      return result;
+    } else {
+      return [];
+    }
   }
 
   getGraphQLSchema(

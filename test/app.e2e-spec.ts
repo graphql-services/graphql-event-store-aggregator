@@ -83,17 +83,19 @@ describe('AppController (e2e)', () => {
           .expect('OK');
       }
 
-      await test
-        .post('/graphql')
-        .send({
-          query: caseItem.query,
-        })
-        // .expect(200)
-        .expect(res => {
-          expect(res.body.errors).toBeUndefined();
-          const data = res.body.data;
-          expect(data).toEqual(caseItem.expectedResult);
-        });
+      for (let i = 0; i < caseItem.queries.length; i++) {
+        await test
+          .post('/graphql')
+          .send({
+            query: caseItem.queries[i],
+          })
+          // .expect(200)
+          .expect(res => {
+            expect(res.body.errors).toBeUndefined();
+            const data = res.body.data;
+            expect(data).toEqual(caseItem.expectedResults[i]);
+          });
+      }
     });
   }
 
