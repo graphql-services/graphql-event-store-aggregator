@@ -128,10 +128,8 @@ export class ModelResolver {
       const paths = [...field.path];
 
       // if path contains something like ['employees_ids'] we translate it to ['employees','id']
-      if (paths[paths.length - 1].match(/.+_ids?/)) {
-        paths[paths.length - 1] = paths[paths.length - 1]
-          .replace('_ids', '')
-          .replace('_id', '');
+      if (paths[paths.length - 1].match(/.+_ids/)) {
+        paths[paths.length - 1] = paths[paths.length - 1].replace('_ids', '');
         paths.push('id');
       }
 
