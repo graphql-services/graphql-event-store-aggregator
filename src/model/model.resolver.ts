@@ -30,7 +30,10 @@ export class ModelResolver {
       entity.name,
     );
 
-    const qb = repository.createQueryBuilder('SELF');
+    const alias = 'SELF';
+    const qb = repository.createQueryBuilder(alias);
+
+    const columns = this.fieldSelectionToColumns(entity, fields);
 
     const orderKeys: string[] = [];
     if (Array.isArray(args.sort)) {
@@ -41,8 +44,6 @@ export class ModelResolver {
         }
       }
     }
-
-    const columns = this.fieldSelectionToColumns(entity, fields);
 
     if (args.limit) qb.take(args.limit);
     if (args.offset) qb.skip(args.offset);
@@ -81,20 +82,38 @@ export class ModelResolver {
       );
     }
 
-    // qb.select(['id']); // queryBuilder from repository sets default fields
-    // for (const field of select) {
-    //   qb.addSelect(`SELF.${field}`, field);
-    // }
-
-    const relations = columns
-      .map(c => (c.relationship ? c.path.slice(0, -1).join('.') : null))
-      .filter(c => c)
-      .filter(onlyUnique);
-
-    for (const rel of relations) {
-      qb.leftJoinAndSelect(`SELF.${rel}`, `SELF.${rel}`);
+    const relations: { [key: string]: EntityField } = {};
+    for (const col of columns) {
+      if (col.relationship) {
+        relations[col.path.slice(0, -1).join('.')] = col.relationship;
+      }
     }
 
+    for (const relationName of Object.keys(relations)) {
+      const relation = relations[relationName];
+      if (relation.isReference()) {
+        qb.leftJoinAndMapOne(
+          `SELF.${relationName}`,
+          `SELF.${relationName}`,
+          `SELF.${relationName}`,
+        );
+      } else if (relation.isReferenceList()) {
+        qb.leftJoinAndMapMany(
+          `SELF.${relationName}`,
+          `SELF.${relationName}`,
+          `SELF.${relationName}`,
+        );
+      }
+    }
+
+    qb.select(['SELF.id']); // queryBuilder from repository sets default fields
+    for (const field of columns) {
+      const p = field.path.join('.');
+      // if (!field.relationship) {
+      // global.console.log('!!!', p);
+      qb.addSelect(`SELF.${p}`);
+      // }
+    }
     return qb;
   }
 
@@ -109,6 +128,7 @@ export class ModelResolver {
     const query = this.query(entity, args, fields || []);
     const items = await query.getMany();
     const count = await query.getCount();
+    // global.console.log('???', JSON.stringify(items));
     return { items, count };
   }
 

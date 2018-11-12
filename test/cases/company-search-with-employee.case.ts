@@ -50,7 +50,7 @@ export const data: ImportEventCase = {
     `
     query {
         companies(q:"john.doe") {
-            items { id name createdAt updatedAt employees { id username } }
+            items { id name employees { id username } }
             count
         }
     }
@@ -69,8 +69,8 @@ export const data: ImportEventCase = {
                 username: 'john.doe',
               },
             ],
-            createdAt: isoCreationDate,
-            updatedAt: null,
+            // createdAt: isoCreationDate,
+            // updatedAt: null,
           },
         ],
         count: 1,
