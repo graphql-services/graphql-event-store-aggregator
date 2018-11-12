@@ -51,6 +51,14 @@ export const data: ImportEventCase = {
       }
   }
 `,
+    `
+query {
+    users {
+        items { id username company_id }
+        count
+    }
+}
+`,
   ],
   expectedResults: [
     {
@@ -81,6 +89,18 @@ export const data: ImportEventCase = {
             employees_ids: ['a1'],
             createdAt: isoCreationDate,
             updatedAt: null,
+          },
+        ],
+        count: 1,
+      },
+    },
+    {
+      users: {
+        items: [
+          {
+            id: 'a1',
+            username: 'john.doe',
+            company_id: 'c1',
           },
         ],
         count: 1,
