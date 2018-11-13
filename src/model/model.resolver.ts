@@ -6,12 +6,20 @@ import { EntityField } from './types/entityfield.model';
 export interface FieldSelection {
   path: string[];
 }
+export interface IModeLResolver {
+  resolveOne(entity: ModelEntity, args, fields: FieldSelection[]): Promise<any>;
+  resolve(
+    entity: ModelEntity,
+    args,
+    fields: FieldSelection[],
+  ): Promise<{ items: any[]; count: number }>;
+}
 
 const onlyUnique = (value, index, self) => {
   return self.indexOf(value) === index;
 };
 
-export class ModelResolver {
+export class ModelResolver implements IModeLResolver {
   constructor(private readonly databaseService: DatabaseService) {}
 
   private query = (
@@ -25,6 +33,18 @@ export class ModelResolver {
 
     const alias = 'SELF';
     const qb = repository.createQueryBuilder(alias);
+
+    if (args.filter) {
+      this.applyFilter(qb, args.filter, 'SELF');
+      for (const key of Object.keys(args.filter)) {
+        const field = entity.fields[key];
+
+        // force table joining
+        if (field && field.isRelationship()) {
+          fields.push({ path: [key, 'id'] });
+        }
+      }
+    }
 
     const columns = this.fieldSelectionToColumns(entity, fields);
 
@@ -40,14 +60,6 @@ export class ModelResolver {
 
     if (args.limit) qb.take(args.limit);
     if (args.offset) qb.skip(args.offset);
-    if (args.filter) {
-      for (const key of Object.keys(args.filter)) {
-        const value = args.filter[key];
-        const obj = {};
-        obj[`value${key}`] = value;
-        qb.andWhere(`SELF.${key} = :value${key}`, obj);
-      }
-    }
     if (args.q) {
       const stringColumns = [
         'SELF.id',
@@ -93,7 +105,6 @@ export class ModelResolver {
           `SELF.${relationName}`,
           `SELF_${relationName}`,
         );
-        // qb.leftJoinAndSelect(`SELF.${relationName}`, relationName);
       }
     }
 
@@ -124,13 +135,69 @@ export class ModelResolver {
     return qb;
   }
 
-  async resolveOne(entity: ModelEntity, args, fields: FieldSelection[]) {
+  applyFilter(
+    qb: SelectQueryBuilder<any>,
+    filter: any,
+    columnPrefix: string = 'SELF.',
+  ) {
+    for (const key of Object.keys(filter)) {
+      const value = filter[key];
+      const valueObj = {};
+      valueObj[`value${key}`] = value;
+      const [column, suffix] = key.split('_');
+      const fullColumn = `${columnPrefix}.${column}`;
+
+      const signs = {
+        ne: '<>',
+        gt: '>',
+        lt: '<',
+        gte: '>=',
+        lte: '<=',
+      };
+
+      switch (suffix) {
+        case 'in':
+          qb.andWhere(`${fullColumn} IN (:...value${key})`, valueObj);
+          break;
+        case 'contains':
+          valueObj[`value${key}`] = `%${value}%`;
+          qb.andWhere(`${fullColumn} LIKE :value${key}`, valueObj);
+          break;
+        case 'like':
+          valueObj[`value${key}`] = value
+            .replace(/\?/g, '_')
+            .replace(/\*/g, '%');
+          qb.andWhere(`${fullColumn} LIKE :value${key}`, valueObj);
+          break;
+        default:
+          if (typeof value === 'object') {
+            // qb.andWhere(`SELF_company.name = 'test company'`, valueObj);
+            this.applyFilter(qb, value, `SELF_${column}`);
+          } else {
+            qb.andWhere(
+              `${fullColumn} ${signs[suffix] || '='} :value${key}`,
+              valueObj,
+            );
+          }
+      }
+    }
+  }
+
+  async resolveOne(
+    entity: ModelEntity,
+    args,
+    fields: FieldSelection[],
+  ): Promise<any> {
     args.offset = 0;
     const query = this.query(entity, args, fields || []);
     return query.getOne();
   }
 
-  async resolve(entity: ModelEntity, args, fields: FieldSelection[]) {
+  async resolve(
+    entity: ModelEntity,
+    args,
+    fields: FieldSelection[],
+  ): Promise<{ items: any[]; count: number }> {
     const query = this.query(entity, args, fields || []);
     const items = await query.getMany();
     const count = await query.getCount();

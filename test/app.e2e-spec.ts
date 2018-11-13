@@ -6,6 +6,57 @@ import { DatabaseService } from '../src/database/database.service';
 
 import { cases } from './cases';
 
+for (const caseItem of cases) {
+  describe(`${caseItem.name}`, () => {
+    let app: INestApplication;
+    let databaseService: DatabaseService;
+    let test: SuperTest<any>;
+
+    beforeEach(async () => {
+      const moduleFixture = await Test.createTestingModule({
+        imports: [AppModule],
+      }).compile();
+
+      app = moduleFixture.createNestApplication();
+      await app.init();
+
+      databaseService = moduleFixture.get(DatabaseService);
+      test = request(app.getHttpServer());
+
+      const events = caseItem.events;
+
+      for (const event of events) {
+        await test
+          .post('/events')
+          .send(event)
+          // .expect(201)
+          .expect('OK');
+      }
+    });
+
+    afterEach(async () => {
+      await app.close();
+      await databaseService.close();
+    });
+
+    for (let i = 0; i < caseItem.queries.length; i++) {
+      (caseItem.only ? it.only : it)(`${caseItem.name} #${i}`, async () => {
+        await test
+          .post('/graphql')
+          .send({
+            query: caseItem.queries[i],
+          })
+          // .expect(200)
+          .expect(res => {
+            expect(res.body.errors).toBeUndefined();
+            const data = res.body.data;
+            expect(data).toEqual(caseItem.expectedResults[i]);
+          });
+      });
+    }
+  });
+}
+
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let databaseService: DatabaseService;
@@ -27,34 +78,6 @@ describe('AppController (e2e)', () => {
     await app.close();
     await databaseService.close();
   });
-
-  for (const caseItem of cases) {
-    (caseItem.only ? it.only : it)(caseItem.name, async () => {
-      const events = caseItem.events;
-
-      for (const event of events) {
-        await test
-          .post('/events')
-          .send(event)
-          .expect(201)
-          .expect('OK');
-      }
-
-      for (let i = 0; i < caseItem.queries.length; i++) {
-        await test
-          .post('/graphql')
-          .send({
-            query: caseItem.queries[i],
-          })
-          .expect(200)
-          .expect(res => {
-            expect(res.body.errors).toBeUndefined();
-            const data = res.body.data;
-            expect(data).toEqual(caseItem.expectedResults[i]);
-          });
-      }
-    });
-  }
 
   it('should return latest event', async () => {
     const events = cases[0].events;
