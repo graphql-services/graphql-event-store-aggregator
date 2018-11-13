@@ -6,6 +6,7 @@ type User {
   retired: Boolean
   retired2: Boolean
   company: Company @relation(inverse: employees)
+  roles: [Role!]! @relation(inverse: users)
 }
 
 enum RoleType {
@@ -16,6 +17,8 @@ enum RoleType {
 type Role {
   name: String
   type: RoleType
+
+  users: [User!]! @relation(inverse: roles)
 }
 
 type Company {

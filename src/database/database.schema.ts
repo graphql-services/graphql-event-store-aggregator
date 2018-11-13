@@ -15,6 +15,7 @@ import {
   GraphQLString,
 } from 'graphql';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
+import { JoinTableMultipleColumnsOptions } from 'typeorm/decorator/options/JoinTableMuplipleColumnsOptions';
 
 export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
   const columns: { [key: string]: EntitySchemaColumnOptions } = {};
@@ -119,14 +120,6 @@ const relationshipOptionsForField = (
     };
   } else if (field.isReference() && inverseField.isReference()) {
     throw new Error('one-to-one relationships are not supported');
-    // return {
-    //   target,
-    //   inverseSide,
-    //   type: 'one-to-one',
-    //   joinColumn: relationDirective.arguments.primary && {
-    //     name: `${field.name}_id`,
-    //   },
-    // };
   }
   return undefined;
 };
@@ -141,12 +134,27 @@ const isPrimaryRelationship = (
 const joinTableOptionsForManyToMany = (
   field1: EntityField,
   field2: EntityField,
-): JoinTableOptions => {
-  const name =
-    field1.entity.name > field2.entity.name
-      ? `${field1.entity.name}_${field1.name}`
-      : `${field2.entity.name}_${field2.name}`;
-  return { name };
+): JoinTableMultipleColumnsOptions => {
+  if (field1.entity.name > field2.entity.name) {
+    const name = `${field1.entity.name}_${field1.name}`;
+    return {
+      name,
+      // joinColumns: [{ name: 'userId', referencedColumnName: 'id' }],
+      // inverseJoinColumns: [
+      //   // { name: 'userId', referencedColumnName: 'id' },
+      //   { name: 'roleId', referencedColumnName: 'id' },
+      // ],
+      // joinColumn: { name: 'id', referencedColumnName: 'id' },
+      // inverseJoinColumn: { referencedColumnName: 'id' },
+    };
+  } else {
+    const name = `${field2.entity.name}_${field2.name}`;
+    return {
+      name,
+      // joinColumn: { name: 'referenceId' },
+      // inverseJoinColumn: { name: 'id' },
+    };
+  }
 };
 
 const columnTypeForField = (field: EntityField): ColumnType => {

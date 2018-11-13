@@ -57,10 +57,10 @@ export class ModelResolver {
     }
     if (args.q) {
       const stringColumns = [
-        'id',
+        'SELF.id',
         ...columns
           .filter(c => c.field && c.field.isSearchable())
-          .map(c => c.path.join('.')),
+          .map(c => `SELF${c.relationship ? '_' : '.'}` + c.path.join('.')),
       ].filter(onlyUnique);
 
       qb.andWhere(
@@ -69,13 +69,10 @@ export class ModelResolver {
           for (const part of parts) {
             for (const column of stringColumns) {
               const _val = part.replace(/\*/g, '%').replace(/\?/g, '_');
-              _qb.orWhere(
-                `SELF.${column} LIKE :value1 OR SELF.${column} LIKE :value2`,
-                {
-                  value1: `${_val}%`,
-                  value2: `% ${_val}%`,
-                },
-              );
+              _qb.orWhere(`${column} LIKE :value1 OR ${column} LIKE :value2`, {
+                value1: `${_val}%`,
+                value2: `% ${_val}%`,
+              });
             }
           }
         }),
@@ -101,19 +98,25 @@ export class ModelResolver {
         qb.leftJoinAndMapMany(
           `SELF.${relationName}`,
           `SELF.${relationName}`,
-          `SELF.${relationName}`,
+          `SELF_${relationName}`,
         );
+        // qb.leftJoinAndSelect(`SELF.${relationName}`, relationName);
       }
     }
 
-    qb.select(['SELF.id']); // queryBuilder from repository sets default fields
-    for (const field of columns) {
-      const p = field.path.join('.');
-      // if (!field.relationship) {
-      // global.console.log('!!!', p);
-      qb.addSelect(`SELF.${p}`);
-      // }
-    }
+    const selectedColumns = [
+      'SELF.id',
+      ...columns.map(field => {
+        const p = field.path.join('.');
+        if (field.relationship) {
+          return `SELF_${p}`;
+        } else {
+          return `SELF.${p}`;
+        }
+      }),
+    ].filter(onlyUnique);
+    qb.select(selectedColumns);
+
     return qb;
   }
 
@@ -128,7 +131,6 @@ export class ModelResolver {
     const query = this.query(entity, args, fields || []);
     const items = await query.getMany();
     const count = await query.getCount();
-    // global.console.log('???', JSON.stringify(items));
     return { items, count };
   }
 
