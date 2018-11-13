@@ -1,11 +1,4 @@
-import {
-  FindManyOptions,
-  Repository,
-  SelectQueryBuilder,
-  Brackets,
-  WhereExpression,
-} from 'typeorm';
-
+import { Brackets, SelectQueryBuilder, WhereExpression } from 'typeorm';
 import { DatabaseService } from '../database/database.service';
 import { ModelEntity } from './types/entity.model';
 import { EntityField } from './types/entityfield.model';
@@ -89,7 +82,6 @@ export class ModelResolver {
     for (const relationName of Object.keys(relations)) {
       const relation = relations[relationName];
       if (relation.isReference()) {
-        // global.console.log('!!!!', relationName);
         qb.leftJoinAndMapOne(
           `SELF.${relationName}`,
           `SELF.${relationName}`,
@@ -105,19 +97,27 @@ export class ModelResolver {
       }
     }
 
-    const selectedColumns = [
-      'SELF.id',
-      ...columns.map(field => {
-        const p = field.path.join('.');
-        if (field.relationship) {
-          return `SELF_${p}`;
-        } else {
-          return `SELF.${p}`;
-        }
-      }),
-    ].filter(onlyUnique);
-    // global.console.log('??', selectedColumns);
-    qb.select(selectedColumns);
+    const columnsByKey: {
+      [key: string]: {
+        path: string[];
+        field?: EntityField;
+        relationship?: EntityField;
+      };
+    } = {};
+    for (const col of columns) {
+      const p = col.path.join('.');
+      columnsByKey[p] = col;
+    }
+
+    qb.select(['SELF.id']);
+    for (const p of Object.keys(columnsByKey)) {
+      const column = columnsByKey[p];
+      if (column.relationship) {
+        qb.addSelect(`SELF_${p}`);
+      } else {
+        qb.addSelect(`SELF.${p}`, `SELF_${p}`);
+      }
+    }
 
     return qb;
   }
@@ -155,7 +155,6 @@ export class ModelResolver {
       // if path contains something like ['employees_ids'] we translate it to ['employees','id']
       if (paths[paths.length - 1].match(/.+_ids/)) {
         paths[paths.length - 1] = paths[paths.length - 1].replace('_ids', '');
-        // .replace('_id', '');
         paths.push('id');
       }
 
@@ -172,9 +171,6 @@ export class ModelResolver {
       }
       const fieldName = paths[paths.length - 1];
       const entityField = targetEntity.fields[fieldName];
-      // if (!entityField) {
-      //   break;
-      // }
       result.push({ path: paths, field: entityField, relationship });
     }
 
