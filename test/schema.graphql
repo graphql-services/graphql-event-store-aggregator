@@ -6,6 +6,7 @@ type User {
   retired: Boolean
   retired2: Boolean
   company: Company @relation(inverse: employees)
+  company2: Company @relation(inverse: employees2)
   roles: [Role!]! @relation(inverse: users)
 }
 
@@ -24,4 +25,5 @@ type Role {
 type Company {
   name: String!
   employees: [User!]! @relation(inverse: company)
+  employees2: [User!]! @relation(inverse: company2)
 }

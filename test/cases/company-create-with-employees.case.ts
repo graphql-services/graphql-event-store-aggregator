@@ -38,7 +38,7 @@ export const data: ImportEventCase = {
     `
         query {
             companies {
-                items { id name createdAt updatedAt employees { id username } }
+                items { id name createdAt updatedAt employees { id username } employees2 { id username } }
                 count
             }
         }
@@ -46,7 +46,7 @@ export const data: ImportEventCase = {
     `
       query {
           companies {
-              items { id name createdAt updatedAt employees_ids }
+              items { id name createdAt updatedAt employees_ids employees2_ids }
               count
           }
       }
@@ -54,7 +54,7 @@ export const data: ImportEventCase = {
     `
       query {
           users {
-              items { id username company_id }
+              items { id username company_id company2_id company {id name} company2 {id name} }
               count
           }
       }
@@ -73,6 +73,7 @@ export const data: ImportEventCase = {
                 username: 'john.doe',
               },
             ],
+            employees2: [],
             createdAt: isoCreationDate,
             updatedAt: null,
           },
@@ -87,6 +88,7 @@ export const data: ImportEventCase = {
             id: 'c1',
             name: 'test company',
             employees_ids: ['a1'],
+            employees2_ids: [],
             createdAt: isoCreationDate,
             updatedAt: null,
           },
@@ -100,7 +102,10 @@ export const data: ImportEventCase = {
           {
             id: 'a1',
             username: 'john.doe',
+            company: null,
             company_id: 'c1',
+            company2: null,
+            company2_id: null,
           },
         ],
         count: 1,
