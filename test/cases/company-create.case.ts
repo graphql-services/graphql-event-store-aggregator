@@ -6,6 +6,7 @@ const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {
   name: 'create company',
+  // only: true,
   events: [
     {
       id: 'bbb',

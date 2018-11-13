@@ -104,8 +104,11 @@ export class ModelEntity {
         if (field.isReference()) {
           fields[field.name + '_id'] = {
             type: GraphQLID,
-            resolve: parent =>
-              (parent[fieldName] && parent[fieldName].id) || null,
+            // resolve: parent => {
+            // global.console.log('???', parent);
+            //   return parent[field.name + '_id'];
+            // },
+            //   (parent[fieldName] && parent[fieldName].id) || null,
           };
         }
         if (field.isReferenceList()) {

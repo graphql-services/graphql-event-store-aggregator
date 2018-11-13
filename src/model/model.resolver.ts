@@ -59,7 +59,7 @@ export class ModelResolver {
       const stringColumns = [
         'id',
         ...columns
-          .filter(c => c.field.isSearchable())
+          .filter(c => c.field && c.field.isSearchable())
           .map(c => c.path.join('.')),
       ].filter(onlyUnique);
 
@@ -135,10 +135,10 @@ export class ModelResolver {
   private fieldSelectionToColumns(
     entity: ModelEntity,
     fields: FieldSelection[],
-  ): { path: string[]; field: EntityField; relationship?: EntityField }[] {
+  ): { path: string[]; field?: EntityField; relationship?: EntityField }[] {
     const result: {
       path: string[];
-      field: EntityField;
+      field?: EntityField;
       relationship?: EntityField;
     }[] = [];
 
@@ -148,10 +148,9 @@ export class ModelResolver {
       const paths = [...field.path];
 
       // if path contains something like ['employees_ids'] we translate it to ['employees','id']
-      if (paths[paths.length - 1].match(/.+_ids?/)) {
-        paths[paths.length - 1] = paths[paths.length - 1]
-          .replace('_ids', '')
-          .replace('_id', '');
+      if (paths[paths.length - 1].match(/.+_ids/)) {
+        paths[paths.length - 1] = paths[paths.length - 1].replace('_ids', '');
+        // .replace('_id', '');
         paths.push('id');
       }
 
@@ -168,9 +167,9 @@ export class ModelResolver {
       }
       const fieldName = paths[paths.length - 1];
       const entityField = targetEntity.fields[fieldName];
-      if (!entityField) {
-        break;
-      }
+      // if (!entityField) {
+      //   break;
+      // }
       result.push({ path: paths, field: entityField, relationship });
     }
 

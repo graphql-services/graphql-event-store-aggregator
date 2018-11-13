@@ -36,29 +36,29 @@ export const data: ImportEventCase = {
   ],
   queries: [
     `
-    query {
-        companies {
-            items { id name createdAt updatedAt employees { id username } }
-            count
+        query {
+            companies {
+                items { id name createdAt updatedAt employees { id username } }
+                count
+            }
         }
-    }
-  `,
+      `,
     `
-  query {
-      companies {
-          items { id name createdAt updatedAt employees_ids }
-          count
+      query {
+          companies {
+              items { id name createdAt updatedAt employees_ids }
+              count
+          }
       }
-  }
-`,
+    `,
     `
-query {
-    users {
-        items { id username company_id }
-        count
-    }
-}
-`,
+      query {
+          users {
+              items { id username company_id }
+              count
+          }
+      }
+    `,
   ],
   expectedResults: [
     {

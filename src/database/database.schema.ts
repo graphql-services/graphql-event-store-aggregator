@@ -12,6 +12,7 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLFloat,
+  GraphQLString,
 } from 'graphql';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 
@@ -26,6 +27,12 @@ export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
       const options = relationshipOptionsForField(field, entity);
       if (options) {
         relations[field.name] = options;
+        if (options.type === 'many-to-one') {
+          columns[field.name + '_id'] = {
+            type: String,
+            nullable: true,
+          };
+        }
       }
     } else {
       columns[field.name] = columnOptionsForField(field);
