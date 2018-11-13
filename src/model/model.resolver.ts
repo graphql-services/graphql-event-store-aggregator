@@ -89,10 +89,11 @@ export class ModelResolver {
     for (const relationName of Object.keys(relations)) {
       const relation = relations[relationName];
       if (relation.isReference()) {
+        // global.console.log('!!!!', relationName);
         qb.leftJoinAndMapOne(
           `SELF.${relationName}`,
           `SELF.${relationName}`,
-          `SELF.${relationName}`,
+          `SELF_${relationName}`,
         );
       } else if (relation.isReferenceList()) {
         qb.leftJoinAndMapMany(
@@ -115,6 +116,7 @@ export class ModelResolver {
         }
       }),
     ].filter(onlyUnique);
+    // global.console.log('??', selectedColumns);
     qb.select(selectedColumns);
 
     return qb;
@@ -131,6 +133,7 @@ export class ModelResolver {
     const query = this.query(entity, args, fields || []);
     const items = await query.getMany();
     const count = await query.getCount();
+    global.console.log('!!??', items);
     return { items, count };
   }
 

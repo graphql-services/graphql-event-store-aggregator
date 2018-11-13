@@ -37,7 +37,7 @@ export const data: ImportEventCase = {
   queries: [
     `
         query {
-            companies {
+            companies(limit: 10) {
                 items { id name createdAt updatedAt employees { id username } employees2 { id username } }
                 count
             }
@@ -45,7 +45,7 @@ export const data: ImportEventCase = {
       `,
     `
       query {
-          companies {
+          companies(limit: 5) {
               items { id name createdAt updatedAt employees_ids employees2_ids }
               count
           }
@@ -53,7 +53,7 @@ export const data: ImportEventCase = {
     `,
     `
       query {
-          users {
+          users(limit: 5) {
               items { id username company_id company2_id company {id name} company2 {id name} }
               count
           }
@@ -102,7 +102,7 @@ export const data: ImportEventCase = {
           {
             id: 'a1',
             username: 'john.doe',
-            company: null,
+            company: { id: 'c1', name: 'test company' },
             company_id: 'c1',
             company2: null,
             company2_id: null,
