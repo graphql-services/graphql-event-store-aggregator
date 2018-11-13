@@ -2,52 +2,9 @@ import request, { SuperTest } from 'supertest';
 import { Test } from '@nestjs/testing';
 import { AppModule } from './../src/app.module';
 import { INestApplication } from '@nestjs/common';
-// import { StoreEvent, StoreEventType } from '../src/events/store-event.model';
 import { DatabaseService } from '../src/database/database.service';
 
 import { cases } from './cases';
-
-const jwtToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-  'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ' +
-  '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-const principalId = '1234567890';
-
-// const tests: { [key: string]: { events: StoreEvent[] } } =
-// {
-//   'import created event': {
-//     events: [
-//       {
-//         id: 'aaa',
-//         entity: 'User',
-//         entityId: 'aabbcc',
-//         data: {
-//           id: 'a1',
-//           username: 'john.doe',
-//           createdAt: new Date(),
-//         },
-//         type: StoreEventType.CREATED,
-//         date: new Date(),
-//       },
-//     ],
-//   },
-//   'import created event2': {
-//     events: [
-//       {
-//         id: 'aaa',
-//         entity: 'User',
-//         entityId: 'aabbcc',
-//         data: {
-//           id: 'a2',
-//           username: 'jane.siri',
-//           createdAt: new Date(),
-//         },
-//         type: StoreEventType.CREATED,
-//         date: new Date(),
-//       },
-//     ],
-//   },
-// };
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -89,7 +46,7 @@ describe('AppController (e2e)', () => {
           .send({
             query: caseItem.queries[i],
           })
-          // .expect(200)
+          .expect(200)
           .expect(res => {
             expect(res.body.errors).toBeUndefined();
             const data = res.body.data;
