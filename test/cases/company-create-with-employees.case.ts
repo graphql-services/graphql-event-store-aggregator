@@ -59,6 +59,13 @@ export const data: ImportEventCase = {
           }
       }
     `,
+    `
+      query {
+          user(id: "a1") {
+              id username companyId company2Id company {id name} company2 {id name}
+          }
+      }
+    `,
   ],
   expectedResults: [
     {
@@ -109,6 +116,16 @@ export const data: ImportEventCase = {
           },
         ],
         count: 1,
+      },
+    },
+    {
+      user: {
+        id: 'a1',
+        username: 'john.doe',
+        company: { id: 'c1', name: 'test company' },
+        companyId: 'c1',
+        company2: null,
+        company2Id: null,
       },
     },
   ],

@@ -125,7 +125,6 @@ export class ModelResolver {
   }
 
   async resolveOne(entity: ModelEntity, args, fields: FieldSelection[]) {
-    args.limit = 1;
     args.offset = 0;
     const query = this.query(entity, args, fields || []);
     return query.getOne();
@@ -135,7 +134,6 @@ export class ModelResolver {
     const query = this.query(entity, args, fields || []);
     const items = await query.getMany();
     const count = await query.getCount();
-    global.console.log('!!??', items);
     return { items, count };
   }
 
