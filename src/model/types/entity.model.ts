@@ -102,12 +102,12 @@ export class ModelEntity {
         fields[field.name] = { type: field.outputType };
         fields[field.name] = { type: field.outputType };
         if (field.isReference()) {
-          fields[field.name + '_id'] = {
+          fields[field.name + 'Id'] = {
             type: GraphQLID,
           };
         }
         if (field.isReferenceList()) {
-          fields[field.name + '_ids'] = {
+          fields[field.name + 'Ids'] = {
             type: new GraphQLNonNull(
               new GraphQLList(new GraphQLNonNull(GraphQLID)),
             ),

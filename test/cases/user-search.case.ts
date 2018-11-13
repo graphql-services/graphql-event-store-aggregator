@@ -58,7 +58,7 @@ export const data: ImportEventCase = {
     query {
         users(q:"jo?n",filter:{password:"doe"},sort: [USERNAME_ASC, CREATEDAT_DESC]) {
           items {
-            id username createdAt updatedAt createdBy updatedBy company { id } company_id
+            id username createdAt updatedAt createdBy updatedBy company { id } companyId
           }
           count
         }
@@ -68,7 +68,7 @@ export const data: ImportEventCase = {
   query {
       users(q:"jo?n",sort: [ID_ASC]) {
         items {
-          id username company_id
+          id username companyId
         }
         count
       }
@@ -85,7 +85,7 @@ export const data: ImportEventCase = {
             createdAt: isoCreationDate,
             updatedAt: null,
             company: null,
-            company_id: null,
+            companyId: null,
             createdBy: '123456',
             updatedBy: null,
           },
@@ -99,12 +99,12 @@ export const data: ImportEventCase = {
           {
             id: 'john.doe',
             username: 'john',
-            company_id: null,
+            companyId: null,
           },
           {
             id: 'john.test',
             username: 'john',
-            company_id: null,
+            companyId: null,
           },
         ],
         count: 2,

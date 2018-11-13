@@ -25,7 +25,7 @@ export const data: ImportEventCase = {
     `
     query {
         users {
-            items { id username createdAt updatedAt createdBy updatedBy company { id } company_id }
+            items { id username createdAt updatedAt createdBy updatedBy company { id } companyId }
             count
         }
     }
@@ -41,7 +41,7 @@ export const data: ImportEventCase = {
             createdAt: isoCreationDate,
             updatedAt: null,
             company: null,
-            company_id: null,
+            companyId: null,
             createdBy: '123456',
             updatedBy: null,
           },

@@ -38,7 +38,7 @@ export const data: ImportEventCase = {
     `
     query {
         user(filter:{username:"jane"}) {
-          id username createdAt updatedAt createdBy updatedBy company { id } company_id
+          id username createdAt updatedAt createdBy updatedBy company { id } companyId
         }
     }
   `,
@@ -51,7 +51,7 @@ export const data: ImportEventCase = {
         createdAt: isoCreationDate,
         updatedAt: null,
         company: null,
-        company_id: null,
+        companyId: null,
         createdBy: '123456',
         updatedBy: null,
       },

@@ -27,7 +27,7 @@ export const data: ImportEventCase = {
       data: {
         id: 'c1',
         name: 'test company',
-        employees_ids: ['a1'],
+        employeesIds: ['a1'],
         createdAt: creationDate,
       },
       type: StoreEventType.CREATED,

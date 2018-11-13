@@ -100,22 +100,24 @@ export class ModelResolver {
     const columnsByKey: {
       [key: string]: {
         path: string[];
+        fullPath: string;
         field?: EntityField;
         relationship?: EntityField;
       };
     } = {};
     for (const col of columns) {
       const p = col.path.join('.');
-      columnsByKey[p] = col;
+      // const key = `SELF_${p.replace(/\./g, '_')}`;
+      columnsByKey[p] = { ...col, fullPath: p };
     }
 
     qb.select(['SELF.id']);
     for (const p of Object.keys(columnsByKey)) {
       const column = columnsByKey[p];
       if (column.relationship) {
-        qb.addSelect(`SELF_${p}`);
+        qb.addSelect(`SELF_${p}`, `SELF_${p.replace(/\./g, '_')}`);
       } else {
-        qb.addSelect(`SELF.${p}`, `SELF_${p}`);
+        qb.addSelect(`SELF.${p}`, `SELF_${p.replace(/\./g, '_')}`);
       }
     }
 
@@ -152,9 +154,9 @@ export class ModelResolver {
       let relationship: EntityField | undefined;
       const paths = [...field.path];
 
-      // if path contains something like ['employees_ids'] we translate it to ['employees','id']
-      if (paths[paths.length - 1].match(/.+_ids/)) {
-        paths[paths.length - 1] = paths[paths.length - 1].replace('_ids', '');
+      // if path contains something like ['employeesIds'] we translate it to ['employees','id']
+      if (paths[paths.length - 1].match(/.+Ids/)) {
+        paths[paths.length - 1] = paths[paths.length - 1].replace('Ids', '');
         paths.push('id');
       }
 

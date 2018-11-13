@@ -29,7 +29,7 @@ export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
       if (options) {
         relations[field.name] = options;
         if (options.type === 'many-to-one') {
-          columns[field.name + '_id'] = {
+          columns[field.name + 'Id'] = {
             type: String,
             nullable: true,
           };
@@ -109,7 +109,7 @@ const relationshipOptionsForField = (
       inverseSide,
       type: 'many-to-one',
       onDelete: 'SET NULL',
-      joinColumn: { name: `${field.name}_id` },
+      joinColumn: { name: `${field.name}Id` },
     };
   } else if (field.isReferenceList() && inverseField.isReference()) {
     return {

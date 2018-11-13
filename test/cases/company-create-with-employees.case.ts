@@ -27,7 +27,7 @@ export const data: ImportEventCase = {
       data: {
         id: 'c1',
         name: 'test company',
-        employees_ids: ['a1'],
+        employeesIds: ['a1'],
         createdAt: creationDate,
       },
       type: StoreEventType.CREATED,
@@ -46,7 +46,7 @@ export const data: ImportEventCase = {
     `
       query {
           companies(limit: 5) {
-              items { id name createdAt updatedAt employees_ids employees2_ids }
+              items { id name createdAt updatedAt employeesIds employees2Ids }
               count
           }
       }
@@ -54,7 +54,7 @@ export const data: ImportEventCase = {
     `
       query {
           users(limit: 5) {
-              items { id username company_id company2_id company {id name} company2 {id name} }
+              items { id username companyId company2Id company {id name} company2 {id name} }
               count
           }
       }
@@ -87,8 +87,8 @@ export const data: ImportEventCase = {
           {
             id: 'c1',
             name: 'test company',
-            employees_ids: ['a1'],
-            employees2_ids: [],
+            employeesIds: ['a1'],
+            employees2Ids: [],
             createdAt: isoCreationDate,
             updatedAt: null,
           },
@@ -103,9 +103,9 @@ export const data: ImportEventCase = {
             id: 'a1',
             username: 'john.doe',
             company: { id: 'c1', name: 'test company' },
-            company_id: 'c1',
+            companyId: 'c1',
             company2: null,
-            company2_id: null,
+            company2Id: null,
           },
         ],
         count: 1,

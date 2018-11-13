@@ -27,7 +27,7 @@ export const data: ImportEventCase = {
       data: {
         id: 'u1',
         username: 'john.doe',
-        roles_ids: ['r1'],
+        rolesIds: ['r1'],
         createdAt: creationDate,
       },
       type: StoreEventType.CREATED,
@@ -38,7 +38,7 @@ export const data: ImportEventCase = {
     `
     query {
         users {
-            items { id username roles {id name} roles_ids }
+            items { id username roles {id name} rolesIds }
             count
         }
     }
@@ -46,7 +46,7 @@ export const data: ImportEventCase = {
     `
     query {
         roles {
-            items { id name users {id username} users_ids }
+            items { id name users {id username} usersIds }
             count
         }
     }
@@ -60,7 +60,7 @@ export const data: ImportEventCase = {
             id: 'u1',
             username: 'john.doe',
             roles: [{ id: 'r1', name: 'admin' }],
-            roles_ids: ['r1'],
+            rolesIds: ['r1'],
           },
         ],
         count: 1,
@@ -73,7 +73,7 @@ export const data: ImportEventCase = {
             id: 'r1',
             name: 'admin',
             users: [{ id: 'u1', username: 'john.doe' }],
-            users_ids: ['u1'],
+            usersIds: ['u1'],
           },
         ],
         count: 1,
