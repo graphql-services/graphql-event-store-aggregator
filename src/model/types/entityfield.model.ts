@@ -12,6 +12,8 @@ import {
   getNamedType,
   GraphQLNamedType,
   GraphQLString,
+  GraphQLInt,
+  GraphQLFloat,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 import { GraphQLPasswordHash } from 'gql-directives';
@@ -31,7 +33,12 @@ export class EntityField {
 
   isSearchable(): boolean {
     const fieldType = getNullableType(this.config.type);
-    return fieldType === GraphQLID || fieldType === GraphQLString;
+    return (
+      fieldType === GraphQLID ||
+      fieldType === GraphQLString ||
+      fieldType === GraphQLInt ||
+      fieldType === GraphQLFloat
+    );
   }
 
   isRelationship(): boolean {
