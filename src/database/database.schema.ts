@@ -11,6 +11,7 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLFloat,
+  GraphQLID,
 } from 'graphql';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 import { JoinTableMultipleColumnsOptions } from 'typeorm/decorator/options/JoinTableMuplipleColumnsOptions';
@@ -166,6 +167,8 @@ const columnTypeForField = (field: EntityField): ColumnType => {
     case GraphQLDate:
     case GraphQLDateTime:
       return Date;
+    case GraphQLID:
+      return String;
   }
   return 'text';
 };
