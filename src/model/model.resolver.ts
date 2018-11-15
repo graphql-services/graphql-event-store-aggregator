@@ -2,6 +2,7 @@ import { Brackets, SelectQueryBuilder, WhereExpression } from 'typeorm';
 import { DatabaseService } from '../database/database.service';
 import { ModelEntity } from './types/entity.model';
 import { EntityField } from './types/entityfield.model';
+import { log } from '../logger';
 
 export interface FieldSelection {
   path: string[];
@@ -27,6 +28,9 @@ export class ModelResolver implements IModeLResolver {
     args,
     fields: FieldSelection[],
   ): SelectQueryBuilder<any> => {
+    log(
+      `entity: ${entity.name}; args:${JSON.stringify(args)}; fields:${fields}`,
+    );
     const repository = this.databaseService.repositoryForEntityName(
       entity.name,
     );

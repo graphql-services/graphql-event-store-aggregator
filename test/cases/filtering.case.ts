@@ -147,7 +147,7 @@ export const data: ImportEventCase = {
     `,
     `
       query {
-        user(filter:{roles:{name:"admin"}}) {
+        user(id:"a1",filter:{roles:{name:"admin"}}) {
           id username companyId company {
             id
           }
