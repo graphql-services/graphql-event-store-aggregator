@@ -3,7 +3,6 @@ import {
   EntitySchema,
   ColumnType,
   EntitySchemaRelationOptions,
-  JoinTableOptions,
 } from 'typeorm';
 
 import { ModelEntity, EntityField } from '../model/model.schema';
@@ -12,7 +11,6 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLFloat,
-  GraphQLString,
 } from 'graphql';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 import { JoinTableMultipleColumnsOptions } from 'typeorm/decorator/options/JoinTableMuplipleColumnsOptions';
@@ -169,5 +167,5 @@ const columnTypeForField = (field: EntityField): ColumnType => {
     case GraphQLDateTime:
       return Date;
   }
-  return String;
+  return 'text';
 };
