@@ -78,10 +78,15 @@ export class ModelResolver implements IModeLResolver {
           for (const part of parts) {
             for (const column of stringColumns) {
               const _val = part.replace(/\*/g, '%').replace(/\?/g, '_');
-              _qb.orWhere(`${column} LIKE :value1 OR ${column} LIKE :value2`, {
-                value1: `${_val}%`,
-                value2: `% ${_val}%`,
-              });
+              const key1 = `qvalue1_${_val}`;
+              const key2 = `qvalue2_${_val}`;
+              const valueObject = {};
+              valueObject[key1] = `${_val}%`;
+              valueObject[key2] = `% ${_val}%`;
+              _qb.orWhere(
+                `${column} LIKE :${key1} OR ${column} LIKE :${key2}`,
+                valueObject,
+              );
             }
           }
         }),
@@ -146,10 +151,12 @@ export class ModelResolver implements IModeLResolver {
   ) {
     for (const key of Object.keys(filter)) {
       const value = filter[key];
-      const valueObj = {};
-      valueObj[`value${key}`] = value;
       const [column, suffix] = key.split('_');
       const fullColumn = `${columnPrefix}.${column}`;
+      const uniqueKey = `value_${key}_${fullColumn}`;
+
+      const valueObj = {};
+      valueObj[uniqueKey] = value;
 
       const signs = {
         ne: '<>',
@@ -161,17 +168,15 @@ export class ModelResolver implements IModeLResolver {
 
       switch (suffix) {
         case 'in':
-          qb.andWhere(`${fullColumn} IN (:...value${key})`, valueObj);
+          qb.andWhere(`${fullColumn} IN (:...${uniqueKey})`, valueObj);
           break;
         case 'contains':
-          valueObj[`value${key}`] = `%${value}%`;
-          qb.andWhere(`${fullColumn} LIKE :value${key}`, valueObj);
+          valueObj[uniqueKey] = `%${value}%`;
+          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
           break;
         case 'like':
-          valueObj[`value${key}`] = value
-            .replace(/\?/g, '_')
-            .replace(/\*/g, '%');
-          qb.andWhere(`${fullColumn} LIKE :value${key}`, valueObj);
+          valueObj[uniqueKey] = value.replace(/\?/g, '_').replace(/\*/g, '%');
+          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
           break;
         default:
           if (typeof value === 'object') {
@@ -179,7 +184,7 @@ export class ModelResolver implements IModeLResolver {
             this.applyFilter(qb, value, `SELF_${column}`);
           } else {
             qb.andWhere(
-              `${fullColumn} ${signs[suffix] || '='} :value${key}`,
+              `${fullColumn} ${signs[suffix] || '='} :${uniqueKey}`,
               valueObj,
             );
           }

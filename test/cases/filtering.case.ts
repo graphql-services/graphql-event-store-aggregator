@@ -154,6 +154,15 @@ export const data: ImportEventCase = {
         }
       }
     `,
+    `
+      query {
+        user(id:"a1",filter:{roles:{id:"r1"}}) {
+          id username companyId company {
+            id
+          }
+        }
+      }
+    `,
   ],
   expectedResults: [
     {
@@ -220,6 +229,14 @@ export const data: ImportEventCase = {
         id: 'a1',
         username: 'john.doe',
         company: { id: 'c1', name: 'test company' },
+        companyId: 'c1',
+      },
+    },
+    {
+      user: {
+        id: 'a1',
+        username: 'john.doe',
+        company: { id: 'c1' },
         companyId: 'c1',
       },
     },
