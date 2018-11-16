@@ -13,6 +13,11 @@ import {
   GraphQLInputFieldConfigMap,
   GraphQLEnumValueConfigMap,
   GraphQLString,
+  assertType,
+  isScalarType,
+  isObjectType,
+  GraphQLInputFieldConfig,
+  getNamedType,
 } from 'graphql';
 import { GraphQLDateTime } from 'graphql-iso-date';
 
@@ -102,14 +107,12 @@ export class ModelEntity {
         fields[field.name] = { type: field.outputType };
         fields[field.name] = { type: field.outputType };
         if (field.isReference()) {
-          fields[field.name + '_id'] = {
+          fields[field.name + 'Id'] = {
             type: GraphQLID,
-            resolve: parent =>
-              (parent[fieldName] && parent[fieldName].id) || null,
           };
         }
         if (field.isReferenceList()) {
-          fields[field.name + '_ids'] = {
+          fields[field.name + 'Ids'] = {
             type: new GraphQLNonNull(
               new GraphQLList(new GraphQLNonNull(GraphQLID)),
             ),
@@ -124,13 +127,49 @@ export class ModelEntity {
     return this._fields;
   }
 
-  inputFieldMap(optionals: boolean = false): GraphQLInputFieldConfigMap {
+  inputFieldMap(): GraphQLInputFieldConfigMap {
     const fields: GraphQLInputFieldConfigMap = {};
     for (const fieldName of Object.keys(this.fields)) {
       const field = this.fields[fieldName];
       fields[field.name] = {
-        type: optionals ? getNullableType(field.inputType) : field.inputType,
+        type: field.inputType,
       };
+    }
+    return fields;
+  }
+
+  inputFilterMap(): GraphQLInputFieldConfigMap {
+    const fields: GraphQLInputFieldConfigMap = {};
+    for (const fieldName of Object.keys(this.fields)) {
+      const field = this.fields[fieldName];
+      const type = getNullableType(field.inputType);
+      const namedType = field.namedType;
+      if (isScalarType(namedType)) {
+        fields[field.name] = {
+          type,
+        };
+        ['ne', 'gt', 'lt', 'gte', 'lte'].forEach(x => {
+          fields[field.name + `_${x}`] = {
+            type,
+          };
+        });
+        fields[field.name + '_in'] = {
+          type: getNullableType(new GraphQLList(field.inputType)),
+        };
+        if (type === GraphQLString || type === GraphQLID) {
+          fields[field.name + '_contains'] = {
+            type,
+          };
+          fields[field.name + '_like'] = {
+            type,
+          };
+        }
+      } else if (isObjectType(namedType)) {
+        const entity = this.schema.getEntityForName(namedType.name);
+        if (entity) {
+          fields[field.name] = { type: entity.getFilterInputType() };
+        }
+      }
     }
     return fields;
   }
@@ -211,7 +250,7 @@ export class ModelEntity {
     if (!this._filterInputType) {
       this._filterInputType = new GraphQLInputObjectType({
         name: `${this.name}FilterType`,
-        fields: this.inputFieldMap(true),
+        fields: () => this.inputFilterMap(),
       });
     }
     return this._filterInputType;

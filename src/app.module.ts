@@ -14,6 +14,7 @@ import { EventsModule } from './events/events.module';
 import { PubSubModule } from './pubsub/pubsub.module';
 import { DatabaseModule } from './database/database.module';
 import { ModelModule } from './model/model.module';
+import { HealthCheckModule } from './healthcheck/healthcheck.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ModelModule } from './model/model.module';
     PubSubModule,
     DatabaseModule,
     ModelModule,
+    HealthCheckModule,
   ],
   providers: [AppServiceProvider],
 })

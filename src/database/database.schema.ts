@@ -3,7 +3,6 @@ import {
   EntitySchema,
   ColumnType,
   EntitySchemaRelationOptions,
-  JoinTableOptions,
 } from 'typeorm';
 
 import { ModelEntity, EntityField } from '../model/model.schema';
@@ -12,8 +11,10 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLFloat,
+  GraphQLID,
 } from 'graphql';
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
+import { JoinTableMultipleColumnsOptions } from 'typeorm/decorator/options/JoinTableMuplipleColumnsOptions';
 
 export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
   const columns: { [key: string]: EntitySchemaColumnOptions } = {};
@@ -26,6 +27,12 @@ export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
       const options = relationshipOptionsForField(field, entity);
       if (options) {
         relations[field.name] = options;
+        if (options.type === 'many-to-one') {
+          columns[field.name + 'Id'] = {
+            type: String,
+            nullable: true,
+          };
+        }
       }
     } else {
       columns[field.name] = columnOptionsForField(field);
@@ -101,7 +108,7 @@ const relationshipOptionsForField = (
       inverseSide,
       type: 'many-to-one',
       onDelete: 'SET NULL',
-      joinColumn: { name: `${field.name}_id` },
+      joinColumn: { name: `${field.name}Id` },
     };
   } else if (field.isReferenceList() && inverseField.isReference()) {
     return {
@@ -112,14 +119,6 @@ const relationshipOptionsForField = (
     };
   } else if (field.isReference() && inverseField.isReference()) {
     throw new Error('one-to-one relationships are not supported');
-    // return {
-    //   target,
-    //   inverseSide,
-    //   type: 'one-to-one',
-    //   joinColumn: relationDirective.arguments.primary && {
-    //     name: `${field.name}_id`,
-    //   },
-    // };
   }
   return undefined;
 };
@@ -134,12 +133,27 @@ const isPrimaryRelationship = (
 const joinTableOptionsForManyToMany = (
   field1: EntityField,
   field2: EntityField,
-): JoinTableOptions => {
-  const name =
-    field1.entity.name > field2.entity.name
-      ? `${field1.entity.name}_${field1.name}`
-      : `${field2.entity.name}_${field2.name}`;
-  return { name };
+): JoinTableMultipleColumnsOptions => {
+  if (field1.entity.name > field2.entity.name) {
+    const name = `${field1.entity.name}_${field1.name}`;
+    return {
+      name,
+      // joinColumns: [{ name: 'userId', referencedColumnName: 'id' }],
+      // inverseJoinColumns: [
+      //   // { name: 'userId', referencedColumnName: 'id' },
+      //   { name: 'roleId', referencedColumnName: 'id' },
+      // ],
+      // joinColumn: { name: 'id', referencedColumnName: 'id' },
+      // inverseJoinColumn: { referencedColumnName: 'id' },
+    };
+  } else {
+    const name = `${field2.entity.name}_${field2.name}`;
+    return {
+      name,
+      // joinColumn: { name: 'referenceId' },
+      // inverseJoinColumn: { name: 'id' },
+    };
+  }
 };
 
 const columnTypeForField = (field: EntityField): ColumnType => {
@@ -153,6 +167,8 @@ const columnTypeForField = (field: EntityField): ColumnType => {
     case GraphQLDate:
     case GraphQLDateTime:
       return Date;
+    case GraphQLID:
+      return String;
   }
-  return String;
+  return 'text';
 };

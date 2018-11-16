@@ -16,7 +16,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get('/latest')
-  async fetchLatestEvent(): Promise<StoreEvent> {
+  async fetchLatestEvent(): Promise<StoreEvent | null> {
     return this.eventsService.getLatestEvent();
   }
 

@@ -13,10 +13,7 @@ type DirectiveValueNode =
   | FloatValueNode
   | StringValueNode
   | BooleanValueNode
-  // | NullValueNode
   | EnumValueNode;
-// | ListValueNode
-// | ObjectValueNode;
 
 export class EntityFieldDirective {
   public arguments: { [key: string]: any };

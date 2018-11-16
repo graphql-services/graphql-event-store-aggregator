@@ -7,6 +7,7 @@ import { ModelEntity } from '../model/model.schema';
 import { ModelService } from '../model/model.service';
 import { Meta } from '../database/entities/Meta';
 import { log } from '../logger';
+import { apply } from './changeset';
 
 @Injectable()
 export class EventsService {
@@ -56,8 +57,11 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const data = this.getDataForStorage(event.data, entity);
-    log('data for create:', data);
+    const entityData = apply(event.data, {});
+    entityData.createdAt = event.date;
+    entityData.createdBy = event.principalId;
+    const data = this.getDataForStorage(entityData, entity);
+    log('data for create:', JSON.stringify(data));
     const item = repo.create({ id: event.entityId, ...data });
     await repo.save(item);
     await this.setLatestEvent(event);
@@ -68,12 +72,13 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const item = await repo.findOne({
-      where: { id: event.entityId },
-    });
+    const item = await this.loadEntityData(repo, event, entity);
     if (item) {
-      const data = this.getDataForStorage(event.data, entity);
-      log('data for update:', data);
+      const entityData = apply(event.data, { ...item });
+      entityData.updatedAt = event.date;
+      entityData.updatedBy = event.principalId;
+      const data = this.getDataForStorage(entityData, entity);
+      log('data for update:', JSON.stringify(data));
       repo.merge(item, data);
       await repo.save(item);
     }
@@ -83,17 +88,35 @@ export class EventsService {
     await repo.delete(event.entityId);
   }
 
+  private loadEntityData(
+    repo: Repository<any>,
+    event: StoreEvent,
+    entity: ModelEntity,
+  ): any {
+    return repo.findOne({
+      where: { id: event.entityId },
+      relations: event.columns
+        .map(column => column.replace('Ids', '').replace('Id', ''))
+        .filter(column => {
+          entity.hasRelation(column);
+        }),
+    });
+  }
+
   private getDataForStorage(data: any, entity: ModelEntity): any {
     const result = {};
     for (const fieldName of Object.keys(entity.fields)) {
       const field = entity.fields[fieldName];
       if (
-        (field.isReference() && data[fieldName + '_id']) ||
-        data[fieldName + '_id'] === null
+        (field.isReference() && data[fieldName + 'Id']) ||
+        data[fieldName + 'Id'] === null
       ) {
-        result[fieldName] = { id: data[fieldName + '_id'] };
-      } else if (field.isReferenceList() && data[fieldName + '_ids']) {
-        result[fieldName] = data[fieldName + '_ids'].map(x => ({ id: x }));
+        result[fieldName] = { id: data[fieldName + 'Id'] };
+      } else if (field.isReferenceList() && data[fieldName + 'Ids']) {
+        if (typeof data[fieldName + 'Ids'] === 'object') {
+          data[fieldName + 'Ids'] = Object.values(data[fieldName + 'Ids']);
+        }
+        result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
       } else if (typeof data[fieldName] !== 'undefined') {
         result[fieldName] = data[fieldName];
       }

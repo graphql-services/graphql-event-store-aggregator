@@ -5,8 +5,7 @@ const isoCreationDate = '2018-10-01T06:15:53.758Z';
 const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {
-  name: 'user aggregator',
-  // only: true,
+  name: 'fetch user',
   events: [
     createEntityEvent({
       entity: 'User',
@@ -17,34 +16,36 @@ export const data: ImportEventCase = {
       date: creationDate,
       principalId: '123456',
     }),
+    createEntityEvent({
+      entity: 'User',
+      entityId: 'a2',
+      data: {
+        username: 'jane',
+      },
+      date: creationDate,
+      principalId: '123456',
+    }),
   ],
   queries: [
     `
     query {
-        users {
-            items {
-              username
-              ... on User {
-                id
-                createdBy
-              }
-            }
-            count
+        user(filter:{username:"jane"}) {
+          id username createdAt updatedAt createdBy updatedBy company { id } companyId
         }
     }
   `,
   ],
   expectedResults: [
     {
-      users: {
-        items: [
-          {
-            id: 'a1',
-            username: 'john.doe',
-            createdBy: '123456',
-          },
-        ],
-        count: 1,
+      user: {
+        id: 'a2',
+        username: 'jane',
+        createdAt: isoCreationDate,
+        updatedAt: null,
+        company: null,
+        companyId: null,
+        createdBy: '123456',
+        updatedBy: null,
       },
     },
   ],
