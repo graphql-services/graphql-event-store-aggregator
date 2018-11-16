@@ -8,6 +8,7 @@ const AGGREGATOR_URL = getENV('AGGREGATOR_URL');
 // implement fetch and import to POST http://localhost/events
 
 interface Event {
+  [key: string]: any;
   cursor: string;
 }
 
@@ -47,6 +48,9 @@ const fetchEvents = async (cursor?: string): Promise<Event[]> => {
 
 const importEvent = async (event: Event) => {
   // global.console.log(`importing event ${JSON.stringify(event)}`);
+  if (typeof event.data === 'string') {
+    event.data = JSON.parse(event.data);
+  }
   const req = fetch(`${AGGREGATOR_URL}/events`, {
     method: 'POST',
     body: JSON.stringify(event),

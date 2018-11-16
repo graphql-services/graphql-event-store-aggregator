@@ -57,7 +57,7 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const entityData = apply(JSON.parse(event.data), {});
+    const entityData = apply(event.data, {});
     entityData.createdAt = event.date;
     entityData.createdBy = event.principalId;
     const data = this.getDataForStorage(entityData, entity);
@@ -74,7 +74,9 @@ export class EventsService {
   ) {
     const item = await this.loadEntityData(repo, event, entity);
     if (item) {
-      const entityData = apply(JSON.parse(event.data), { ...item });
+      const entityData = apply(event.data, { ...item });
+      entityData.updatedAt = event.date;
+      entityData.updatedBy = event.principalId;
       const data = this.getDataForStorage(entityData, entity);
       log('data for update:', data);
       repo.merge(item, data);
@@ -111,14 +113,10 @@ export class EventsService {
       ) {
         result[fieldName] = { id: data[fieldName + 'Id'] };
       } else if (field.isReferenceList() && data[fieldName + 'Ids']) {
-        if (
-          typeof data[fieldName + 'Ids'] === 'object' &&
-          Object.keys(data[fieldName + 'Ids']).length === 0
-        ) {
-          result[fieldName] = [];
-        } else {
-          result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
+        if (typeof data[fieldName + 'Ids'] === 'object') {
+          data[fieldName + 'Ids'] = Object.values(data[fieldName + 'Ids']);
         }
+        result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
       } else if (typeof data[fieldName] !== 'undefined') {
         result[fieldName] = data[fieldName];
       }
