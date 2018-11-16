@@ -1,4 +1,4 @@
-import { ImportEventCase } from './model';
+import { ImportEventCase, createEntityEvent } from './model';
 import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.758Z';
@@ -8,31 +8,23 @@ export const data: ImportEventCase = {
   name: 'create roles',
   // only: true,
   events: [
-    {
-      id: 'role1',
+    createEntityEvent({
       entity: 'Role',
       entityId: 'r1',
       data: {
-        id: 'r1',
         name: 'admin',
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'user1',
+    }),
+    createEntityEvent({
       entity: 'User',
       entityId: 'u1',
       data: {
-        id: 'u1',
         username: 'john.doe',
         rolesIds: ['r1'],
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
+    }),
   ],
   queries: [
     `

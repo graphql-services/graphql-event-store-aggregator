@@ -1,4 +1,4 @@
-import { ImportEventCase } from './model';
+import { ImportEventCase, createEntityEvent } from './model';
 import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.758Z';
@@ -8,50 +8,38 @@ export const data: ImportEventCase = {
   name: 'search user',
   // only: true,
   events: [
-    {
-      id: 'aaa',
+    createEntityEvent({
       entity: 'User',
-      entityId: 'aabbcc',
+      entityId: 'john.test',
       data: {
-        id: 'john.test',
         username: 'john',
         password: 'test',
-        createdAt: creationDate,
-        createdBy: '123456',
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'bbb',
+      principalId: '123456',
+    }),
+    createEntityEvent({
       entity: 'User',
-      entityId: 'aabbcc2',
+      entityId: 'john.doe',
       data: {
-        id: 'john.doe',
         username: 'john',
         password:
           'c9cc61d920d4349df9f71ea323fb1c14988fe8e147d9917d9c3808035d4c77b1d8cf1a193030a4c5772cd11606fdd5b2dea3051573e077db2e12bd661155308d',
-        createdAt: creationDate,
-        createdBy: '123456',
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'ccc',
+      principalId: '123456',
+    }),
+    createEntityEvent({
       entity: 'User',
-      entityId: 'aabbcc2',
+      entityId: 'siri',
       data: {
-        id: 'siri',
         username: 'jane',
         password:
           'c9cc61d920d4349df9f71ea323fb1c14988fe8e147d9917d9c3808035d4c77b1d8cf1a193030a4c5772cd11606fdd5b2dea3051573e077db2e12bd661155308d',
-        createdAt: creationDate,
-        createdBy: '123456',
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
+      principalId: '123456',
+    }),
   ],
   queries: [
     `

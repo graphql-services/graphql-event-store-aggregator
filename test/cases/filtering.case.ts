@@ -1,4 +1,4 @@
-import { ImportEventCase } from './model';
+import { ImportEventCase, createEntityEvent } from './model';
 import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.758Z';
@@ -8,58 +8,42 @@ export const data: ImportEventCase = {
   name: 'filtering',
   // only: true,
   events: [
-    {
-      id: 'aaa',
+    createEntityEvent({
       entity: 'User',
-      entityId: 'aabbcc',
+      entityId: 'a1',
       data: {
-        id: 'a1',
         username: 'john.doe',
         age: 30,
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'bbb',
+    }),
+    createEntityEvent({
       entity: 'User',
-      entityId: 'aabbcc',
+      entityId: 'a2',
       data: {
-        id: 'a2',
         username: 'jane.siri',
         age: 25,
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'caaa',
+    }),
+    createEntityEvent({
       entity: 'Company',
       entityId: 'c1',
       data: {
-        id: 'c1',
         name: 'test company',
         employeesIds: ['a1'],
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
-    {
-      id: 'raaa',
+    }),
+    createEntityEvent({
       entity: 'Role',
       entityId: 'r1',
       data: {
-        id: 'r1',
         name: 'admin',
         usersIds: ['a1'],
-        createdAt: creationDate,
       },
-      type: StoreEventType.CREATED,
       date: creationDate,
-    },
+    }),
   ],
   queries: [
     `

@@ -61,7 +61,7 @@ export class EventsService {
     entityData.createdAt = event.date;
     entityData.createdBy = event.principalId;
     const data = this.getDataForStorage(entityData, entity);
-    log('data for create:', data);
+    log('data for create:', JSON.stringify(data));
     const item = repo.create({ id: event.entityId, ...data });
     await repo.save(item);
     await this.setLatestEvent(event);
@@ -78,7 +78,7 @@ export class EventsService {
       entityData.updatedAt = event.date;
       entityData.updatedBy = event.principalId;
       const data = this.getDataForStorage(entityData, entity);
-      log('data for update:', data);
+      log('data for update:', JSON.stringify(data));
       repo.merge(item, data);
       await repo.save(item);
     }
