@@ -18,7 +18,7 @@ const isImportRequired = async () => {
 
 const fetchEvents = async (cursor?: string): Promise<Event[]> => {
   const query = `query ($cursor:String) {
-    _events(cursor:$cursor){
+    _events(cursor:$cursor,limit:30){
       id
       entityId
       entity
