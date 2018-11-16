@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"**/*.ts\"",
-    "initialize": "ts-node -r tsconfig-paths/register scripts/initialize.ts",
+    "import": "ts-node -r tsconfig-paths/register scripts/import.ts",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "nodemon",
     "prestart:prod": "rm -rf dist && tsc",

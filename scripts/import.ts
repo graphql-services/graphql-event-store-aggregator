@@ -1,11 +1,9 @@
 import 'cross-fetch/polyfill';
-
+import { resolve } from 'ur';
 import { getENV } from '../src/env';
 
-const EVENT_STORE_URL = getENV('EVENT_STORE_URL');
-const AGGREGATOR_URL = getENV('AGGREGATOR_URL');
-
-// implement fetch and import to POST http://localhost/events
+const EVENT_STORE_URL = getENV('EVENT_STORE_URL', 'http://event-store/graphql');
+const AGGREGATOR_URL = getENV('AGGREGATOR_URL', 'http://localhost/');
 
 interface Event {
   [key: string]: any;
@@ -13,7 +11,7 @@ interface Event {
 }
 
 const isImportRequired = async () => {
-  const req = fetch(`${AGGREGATOR_URL}/events/latest`);
+  const req = fetch(resolve(AGGREGATOR_URL, `/events/latest`));
   const res = await req;
   return parseInt(res.headers.get('content-length'), 10) === 0;
 };
@@ -36,7 +34,7 @@ const fetchEvents = async (cursor?: string): Promise<Event[]> => {
   const variables = { cursor };
   const body = { query, variables };
 
-  const req = fetch(`${EVENT_STORE_URL}/graphql`, {
+  const req = fetch(EVENT_STORE_URL, {
     method: 'POST',
     body: JSON.stringify(body),
     headers: { 'content-type': 'application/json' },
@@ -51,7 +49,7 @@ const importEvent = async (event: Event) => {
   if (typeof event.data === 'string') {
     event.data = JSON.parse(event.data);
   }
-  const req = fetch(`${AGGREGATOR_URL}/events`, {
+  const req = fetch(resolve(AGGREGATOR_URL, `events`), {
     method: 'POST',
     body: JSON.stringify(event),
     headers: { 'content-type': 'application/json' },
