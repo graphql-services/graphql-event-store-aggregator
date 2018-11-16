@@ -21,8 +21,9 @@ export interface StoreEvent {
   id: string;
   entity: string;
   entityId: string;
-  data: StoreEventData | null;
+  data: string | null;
   type: StoreEventType;
   date: Date;
   principalId?: string;
+  columns: string[];
 }

@@ -7,6 +7,7 @@ import { ModelEntity } from '../model/model.schema';
 import { ModelService } from '../model/model.service';
 import { Meta } from '../database/entities/Meta';
 import { log } from '../logger';
+import { apply } from './changeset';
 
 @Injectable()
 export class EventsService {
@@ -56,7 +57,10 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const data = this.getDataForStorage(event.data, entity);
+    const entityData = apply(JSON.parse(event.data), {});
+    entityData.createdAt = event.date;
+    entityData.createdBy = event.principalId;
+    const data = this.getDataForStorage(entityData, entity);
     log('data for create:', data);
     const item = repo.create({ id: event.entityId, ...data });
     await repo.save(item);
@@ -68,11 +72,10 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const item = await repo.findOne({
-      where: { id: event.entityId },
-    });
+    const item = await this.loadEntityData(repo, event, entity);
     if (item) {
-      const data = this.getDataForStorage(event.data, entity);
+      const entityData = apply(JSON.parse(event.data), { ...item });
+      const data = this.getDataForStorage(entityData, entity);
       log('data for update:', data);
       repo.merge(item, data);
       await repo.save(item);
@@ -81,6 +84,21 @@ export class EventsService {
 
   private async handleDeleteEvent(event: StoreEvent, repo: Repository<any>) {
     await repo.delete(event.entityId);
+  }
+
+  private loadEntityData(
+    repo: Repository<any>,
+    event: StoreEvent,
+    entity: ModelEntity,
+  ): any {
+    return repo.findOne({
+      where: { id: event.entityId },
+      relations: event.columns
+        .map(column => column.replace('Ids', '').replace('Id', ''))
+        .filter(column => {
+          entity.hasRelation(column);
+        }),
+    });
   }
 
   private getDataForStorage(data: any, entity: ModelEntity): any {
@@ -93,7 +111,14 @@ export class EventsService {
       ) {
         result[fieldName] = { id: data[fieldName + 'Id'] };
       } else if (field.isReferenceList() && data[fieldName + 'Ids']) {
-        result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
+        if (
+          typeof data[fieldName + 'Ids'] === 'object' &&
+          Object.keys(data[fieldName + 'Ids']).length === 0
+        ) {
+          result[fieldName] = [];
+        } else {
+          result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
+        }
       } else if (typeof data[fieldName] !== 'undefined') {
         result[fieldName] = data[fieldName];
       }
