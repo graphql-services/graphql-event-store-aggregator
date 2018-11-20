@@ -174,6 +174,14 @@ export class ModelResolver implements IModeLResolver {
           valueObj[uniqueKey] = `%${value}%`;
           qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
           break;
+        case 'prefix':
+          valueObj[uniqueKey] = `${value}%`;
+          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+          break;
+        case 'suffix':
+          valueObj[uniqueKey] = `%${value}`;
+          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+          break;
         case 'like':
           valueObj[uniqueKey] = value.replace(/\?/g, '_').replace(/\*/g, '%');
           qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
