@@ -150,7 +150,10 @@ export class ModelResolver implements IModeLResolver {
     columnPrefix: string = 'SELF.',
   ) {
     for (const key of Object.keys(filter)) {
-      const value = filter[key];
+      let value = filter[key];
+      if (value instanceof Date) {
+        value = value.toISOString();
+      }
       const [column, suffix] = key.split('_');
       const fullColumn = `${columnPrefix}.${column}`;
       const uniqueKey = `value_${key}_${fullColumn}`;

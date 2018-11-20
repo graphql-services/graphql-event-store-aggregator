@@ -3,6 +3,8 @@ import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.758Z';
 const creationDate = new Date(isoCreationDate);
+const isoCreationDate2 = '2018-10-02T15:15:53.758Z';
+const creationDate2 = new Date(isoCreationDate2);
 
 export const data: ImportEventCase = {
   name: 'filtering',
@@ -24,7 +26,7 @@ export const data: ImportEventCase = {
         username: 'jane.siri',
         age: 25,
       },
-      date: creationDate,
+      date: creationDate2,
     }),
     createEntityEvent({
       entity: 'Company',
@@ -165,6 +167,18 @@ export const data: ImportEventCase = {
         }
       }
     `,
+    `
+      query {
+        users(filter:{createdAt_gte:"${isoCreationDate}"}) {
+          items{
+            id username companyId company {
+              id
+            }
+          }
+          count
+        }
+      }
+    `,
   ],
   expectedResults: [
     {
@@ -272,6 +286,19 @@ export const data: ImportEventCase = {
         username: 'john.doe',
         company: { id: 'c1' },
         companyId: 'c1',
+      },
+    },
+    {
+      users: {
+        items: [
+          {
+            id: 'a2',
+            username: 'jane.siri',
+            company: null,
+            companyId: null,
+          },
+        ],
+        count: 1,
       },
     },
   ],
