@@ -163,6 +163,12 @@ export class ModelEntity {
           fields[field.name + '_like'] = {
             type,
           };
+          fields[field.name + '_prefix'] = {
+            type,
+          };
+          fields[field.name + '_suffix'] = {
+            type,
+          };
         }
       } else if (isObjectType(namedType)) {
         const entity = this.schema.getEntityForName(namedType.name);
