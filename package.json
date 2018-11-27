@@ -51,8 +51,8 @@
     "reflect-metadata": "^0.1.12",
     "rxjs": "^6.0.0",
     "sqlite3": "^4.0.2",
-    "typeorm": "0.2.6",
-    "typescript": "^2.6.2",
+    "typeorm": "0.2.9",
+    "typescript": "3.0.1",
     "voca": "^1.4.0"
   },
   "devDependencies": {

@@ -7036,9 +7036,9 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-typeorm@0.2.6:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.6.tgz#04e0ac43f4da9e3cdc2c18d6c5987a58f6ebefb8"
+typeorm@0.2.9:
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.9.tgz#b21a55f4c7ae398c104911e298485c232bcceefc"
   dependencies:
     app-root-path "^2.0.1"
     buffer "^5.1.0"
@@ -7054,9 +7054,9 @@ typeorm@0.2.6:
     yargonaut "^1.1.2"
     yargs "^11.1.0"
 
-typescript@^2.6.2:
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
+typescript@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.0.1.tgz#43738f29585d3a87575520a4b93ab6026ef11fdb"
 
 udc@^1.0.0:
   version "1.0.1"
