@@ -40,13 +40,13 @@ export class ModelResolver implements IModeLResolver {
 
     if (args.filter) {
       this.applyFilter(qb, args.filter, 'SELF');
-      for (const key of Object.keys(args.filter)) {
-        const field = entity.fields[key];
-
-        // force table joining
-        if (field && field.isRelationship()) {
-          fields.push({ path: [key, 'id'] });
-        }
+      const columns = this.getRelationshipColumnsFromFilter(
+        args.filter,
+        entity,
+      );
+      // force table joining
+      for (const column of columns) {
+        fields.push({ path: [column, 'id'] });
       }
     }
 
@@ -145,62 +145,104 @@ export class ModelResolver implements IModeLResolver {
   }
 
   applyFilter(
-    qb: SelectQueryBuilder<any>,
+    qb: WhereExpression,
     filter: any,
     columnPrefix: string = 'SELF.',
   ) {
     for (const key of Object.keys(filter)) {
-      let value = filter[key];
-      if (value instanceof Date) {
-        value = value.toISOString();
-      }
-      const [column, suffix] = key.split('_');
-      const fullColumn = `${columnPrefix}.${column}`;
-      const uniqueKey = `value_${key}_${fullColumn}`;
-
-      const valueObj = {};
-      valueObj[uniqueKey] = value;
-
-      const signs = {
-        ne: '<>',
-        gt: '>',
-        lt: '<',
-        gte: '>=',
-        lte: '<=',
-      };
-
-      switch (suffix) {
-        case 'in':
-          qb.andWhere(`${fullColumn} IN (:...${uniqueKey})`, valueObj);
-          break;
-        case 'contains':
-          valueObj[uniqueKey] = `%${value}%`;
-          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
-          break;
-        case 'prefix':
-          valueObj[uniqueKey] = `${value}%`;
-          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
-          break;
-        case 'suffix':
-          valueObj[uniqueKey] = `%${value}`;
-          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
-          break;
-        case 'like':
-          valueObj[uniqueKey] = value.replace(/\?/g, '_').replace(/\*/g, '%');
-          qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
-          break;
-        default:
-          if (typeof value === 'object') {
-            // qb.andWhere(`SELF_company.name = 'test company'`, valueObj);
-            this.applyFilter(qb, value, `SELF_${column}`);
-          } else {
-            qb.andWhere(
-              `${fullColumn} ${signs[suffix] || '='} :${uniqueKey}`,
-              valueObj,
-            );
-          }
+      const value = filter[key];
+      if (key === 'OR' && Array.isArray(value)) {
+        for (const orFilter of value) {
+          qb.orWhere(
+            new Brackets((_qb: WhereExpression) => {
+              this.applyFilter(_qb, orFilter, columnPrefix);
+            }),
+          );
+        }
+      } else if (key === 'AND' && Array.isArray(value)) {
+        for (const orFilter of value) {
+          qb.andWhere(
+            new Brackets((_qb: WhereExpression) => {
+              this.applyFilter(_qb, orFilter, columnPrefix);
+            }),
+          );
+        }
+      } else {
+        this.applyFilterValue(qb, key, value, columnPrefix);
       }
     }
+  }
+
+  applyFilterValue(qb: WhereExpression, key: string, value: any, columnPrefix) {
+    if (value instanceof Date) {
+      value = value.toISOString();
+    }
+    const [column, suffix] = key.split('_');
+    const fullColumn = `${columnPrefix}.${column}`;
+    const uniqueKey = btoa(
+      `value_${key}_${fullColumn}_${JSON.stringify(value)}`,
+    ).replace(/=/g, '');
+
+    const valueObj = {};
+    valueObj[uniqueKey] = value;
+
+    const signs = {
+      ne: '<>',
+      gt: '>',
+      lt: '<',
+      gte: '>=',
+      lte: '<=',
+    };
+
+    switch (suffix) {
+      case 'in':
+        qb.andWhere(`${fullColumn} IN (:...${uniqueKey})`, valueObj);
+        break;
+      case 'contains':
+        valueObj[uniqueKey] = `%${value}%`;
+        qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+        break;
+      case 'prefix':
+        valueObj[uniqueKey] = `${value}%`;
+        qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+        break;
+      case 'suffix':
+        valueObj[uniqueKey] = `%${value}`;
+        qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+        break;
+      case 'like':
+        valueObj[uniqueKey] = value.replace(/\?/g, '_').replace(/\*/g, '%');
+        qb.andWhere(`${fullColumn} LIKE :${uniqueKey}`, valueObj);
+        break;
+      default:
+        if (typeof value === 'object') {
+          // qb.andWhere(`SELF_company.name = 'test company'`, valueObj);
+          this.applyFilter(qb, value, `SELF_${column}`);
+        } else {
+          qb.andWhere(
+            `${fullColumn} ${signs[suffix] || '='} :${uniqueKey}`,
+            valueObj,
+          );
+        }
+    }
+  }
+
+  getRelationshipColumnsFromFilter(filter: any, entity: ModelEntity): string[] {
+    let columns: string[] = [];
+    for (const key of Object.keys(filter)) {
+      if (key === 'OR' || key === 'AND') {
+        columns = [
+          ...this.getRelationshipColumnsFromFilter(filter[key], entity),
+          ...columns,
+        ];
+      }
+
+      const field = entity.fields[key];
+      if (field && field.isRelationship()) {
+        columns.push(key);
+      }
+    }
+    return columns;
   }
 
   async resolveOne(

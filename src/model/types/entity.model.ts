@@ -256,7 +256,19 @@ export class ModelEntity {
     if (!this._filterInputType) {
       this._filterInputType = new GraphQLInputObjectType({
         name: `${this.name}FilterType`,
-        fields: () => this.inputFilterMap(),
+        fields: () => ({
+          OR: {
+            type: new GraphQLList(
+              new GraphQLNonNull(this.getFilterInputType()),
+            ),
+          },
+          AND: {
+            type: new GraphQLList(
+              new GraphQLNonNull(this.getFilterInputType()),
+            ),
+          },
+          ...this.inputFilterMap(),
+        }),
       });
     }
     return this._filterInputType;
