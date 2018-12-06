@@ -7,7 +7,7 @@
   "scripts": {
     "format": "prettier --write \"**/*.ts\"",
     "import": "ts-node -r tsconfig-paths/register scripts/import.ts",
-    "nsq-worker": "ts-node -r tsconfig-paths/register scripts/import.ts",
+    "nsq-worker": "ts-node -r tsconfig-paths/register scripts/nsq-worker.ts",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "nodemon",
     "prestart:prod": "rm -rf dist && tsc",
