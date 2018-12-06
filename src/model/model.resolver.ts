@@ -179,9 +179,11 @@ export class ModelResolver implements IModeLResolver {
     }
     const [column, suffix] = key.split('_');
     const fullColumn = `${columnPrefix}.${column}`;
-    const uniqueKey = btoa(
+    const uniqueKey = Buffer.from(
       `value_${key}_${fullColumn}_${JSON.stringify(value)}`,
-    ).replace(/=/g, '');
+    )
+      .toString('base64')
+      .replace(/=/g, '');
 
     const valueObj = {};
     valueObj[uniqueKey] = value;
