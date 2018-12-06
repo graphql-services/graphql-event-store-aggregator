@@ -71,24 +71,20 @@ export const importEvent = async (event: Event) => {
 };
 
 export const runImport = async () => {
-  try {
-    const isRequired = await isImportRequired();
-    let cursor: string | undefined;
-    if (isRequired) {
-      while (true) {
-        const events = await fetchEvents(cursor);
-        if (events.length === 0) {
-          global.console.log('no more events, ending');
-          break;
-        }
-        global.console.log('importing events', events.length);
-        for (const event of events) {
-          await importEvent(event);
-        }
-        cursor = events[events.length - 1].cursor;
+  const isRequired = await isImportRequired();
+  let cursor: string | undefined;
+  if (isRequired) {
+    while (true) {
+      const events = await fetchEvents(cursor);
+      if (events.length === 0) {
+        global.console.log('no more events, ending');
+        break;
       }
+      global.console.log('importing events', events.length);
+      for (const event of events) {
+        await importEvent(event);
+      }
+      cursor = events[events.length - 1].cursor;
     }
-  } catch (err) {
-    global.console.log(`Failed during import: ${err}`);
   }
 };
