@@ -1,4 +1,4 @@
-import nsq from 'nsqjs';
+import * as nsq from 'nsqjs';
 
 import { log } from '../src/logger';
 import { getENV } from '../src/env';
@@ -7,7 +7,6 @@ import { runImport, importEvent, Event } from './tools';
 const NSQ_URL: string = getENV('NSQ_URL');
 
 const start = async () => {
-  global.console.log();
   await runImport();
 
   const reader = new nsq.Reader('es-event', 'aggregator', {
@@ -26,7 +25,7 @@ const start = async () => {
     }
   });
 
-  this.reader.connect();
+  reader.connect();
 };
 
 start();
