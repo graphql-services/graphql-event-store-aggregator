@@ -10,6 +10,12 @@ export interface Event {
   cursor: string;
 }
 
+const delay = (interval: number) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, interval);
+  });
+};
+
 export const fetchLatestEvent = async (): Promise<Event | null> => {
   const req = fetch(resolve(AGGREGATOR_URL, `/events/latest`));
   const res = await req;
@@ -19,9 +25,20 @@ export const fetchLatestEvent = async (): Promise<Event | null> => {
   return res.json();
 };
 
-export const isImportRequired = async () => {
-  const event = await fetchLatestEvent();
-  return event === null;
+export const isImportRequired = async (iteration: number = 0) => {
+  try {
+    const event = await fetchLatestEvent();
+    return event === null;
+  } catch (err) {
+    if (iteration > 5) {
+      throw new Error(
+        `could not fetch latestEvent, please check if the aggregator is runnig`,
+      );
+    }
+    log(`could not fetch latestEvent, retrying after ${iteration * 2}s...`);
+    await delay(iteration * 2000);
+    return isImportRequired(iteration + 1);
+  }
 };
 
 export const fetchEvents = async (cursor?: string): Promise<Event[]> => {
@@ -71,20 +88,23 @@ export const importEvent = async (event: Event) => {
 };
 
 export const runImport = async () => {
+  log(`running import`);
   const isRequired = await isImportRequired();
   let cursor: string | undefined;
+  log(`import required: ${isRequired ? 'yes' : 'no'}`);
   if (isRequired) {
     while (true) {
       const events = await fetchEvents(cursor);
       if (events.length === 0) {
-        global.console.log('no more events, ending');
+        log('received end of event stream');
         break;
       }
-      global.console.log('importing events', events.length);
+      log('importing events', events.length);
       for (const event of events) {
         await importEvent(event);
       }
       cursor = events[events.length - 1].cursor;
     }
+    log('import finished');
   }
 };
