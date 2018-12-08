@@ -9,6 +9,7 @@ const NSQ_URL: string = getENV('NSQ_URL');
 const start = async () => {
   await runImport();
 
+  log(`creating NSQ reader 'aggregator' for 'es-event' topic`);
   const reader = new nsq.Reader('es-event', 'aggregator', {
     lookupdHTTPAddresses: NSQ_URL.split(','),
     maxAttempts: 5,
@@ -16,9 +17,12 @@ const start = async () => {
 
   reader.on('message', async msg => {
     try {
-      const event = JSON.parse(msg.body.toString()) as Event;
+      const rawEvent = msg.body.toString();
+      log(`received event`, rawEvent);
+      const event = JSON.parse(rawEvent) as Event;
       await importEvent(event);
       msg.finish();
+      log(`event processed`, rawEvent);
     } catch (e) {
       log(`failed to process event ${msg.body.toString()},error: ${e}`);
       msg.requeue(0);
@@ -26,6 +30,7 @@ const start = async () => {
   });
 
   reader.connect();
+  log(`NSQ reader started`);
 };
 
 start();
