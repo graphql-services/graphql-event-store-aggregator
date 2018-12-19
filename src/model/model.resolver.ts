@@ -50,17 +50,18 @@ export class ModelResolver implements IModeLResolver {
       }
     }
 
-    const columns = this.fieldSelectionToColumns(entity, fields);
-
     const orderKeys: string[] = [];
     if (Array.isArray(args.sort)) {
       for (const sort of args.sort) {
         for (const key of Object.keys(sort)) {
           orderKeys.push(key);
           qb.addOrderBy(`SELF.${key}`, sort[key]);
+          fields.push({ path: [key] });
         }
       }
     }
+
+    const columns = this.fieldSelectionToColumns(entity, fields);
 
     if (args.limit) qb.take(args.limit);
     if (args.offset) qb.skip(args.offset);
