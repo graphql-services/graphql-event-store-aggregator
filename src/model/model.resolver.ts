@@ -99,21 +99,23 @@ export class ModelResolver implements IModeLResolver {
         relations[col.path.slice(0, -1).join('.')] = col.relationship;
       }
     }
+    for (const relationKey of Object.keys(relations)) {
+      const relation = relations[relationKey];
+      let mapToProperty = `${alias}.${relationKey}`;
+      let property = `${alias}.${relationKey}`;
+      let joinAlias = `${alias}_${relationKey}`;
+      if (relationKey.indexOf('.') !== -1) {
+        const parts = relationKey.split('.');
+        const middle = parts.slice(0, -1).join('_');
+        property = `${alias}_${middle}.${parts[parts.length - 1]}`;
+        mapToProperty = property;
+        joinAlias = `${alias}_${middle}_${parts[parts.length - 1]}`;
+      }
 
-    for (const relationName of Object.keys(relations)) {
-      const relation = relations[relationName];
       if (relation.isReference()) {
-        qb.leftJoinAndMapOne(
-          `SELF.${relationName}`,
-          `SELF.${relationName}`,
-          `SELF_${relationName}`,
-        );
+        qb.leftJoinAndMapOne(mapToProperty, property, joinAlias);
       } else if (relation.isReferenceList()) {
-        qb.leftJoinAndMapMany(
-          `SELF.${relationName}`,
-          `SELF.${relationName}`,
-          `SELF_${relationName}`,
-        );
+        qb.leftJoinAndMapMany(mapToProperty, property, joinAlias);
       }
     }
 
@@ -134,10 +136,18 @@ export class ModelResolver implements IModeLResolver {
     qb.select(['SELF.id']);
     for (const p of Object.keys(columnsByKey)) {
       const column = columnsByKey[p];
+      const parts = p.split('.');
+      const columnAlias = `SELF_${parts.join('_')}`;
       if (column.relationship) {
-        qb.addSelect(`SELF_${p}`, `SELF_${p.replace(/\./g, '_')}`);
+        const columnName = `SELF_${parts.slice(0, -1).join('_')}.${
+          parts[parts.length - 1]
+        }`;
+        qb.addSelect(columnName, columnAlias);
       } else {
-        qb.addSelect(`SELF.${p}`, `SELF_${p.replace(/\./g, '_')}`);
+        const columnName = `SELF${parts.slice(0, -1).join('_')}.${
+          parts[parts.length - 1]
+        }`;
+        qb.addSelect(columnName, columnAlias);
       }
     }
 

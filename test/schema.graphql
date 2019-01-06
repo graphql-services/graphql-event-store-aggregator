@@ -22,8 +22,16 @@ type Role {
   users: [User!]! @relation(inverse: roles)
 }
 
+type Address {
+  street: String
+  city: String
+  zip: String
+  companies: [Company!]! @relation(inverse: address)
+}
+
 type Company {
   name: String!
   employees: [User!]! @relation(inverse: company)
   employees2: [User!]! @relation(inverse: company2)
+  address: Address @relation(inverse: companies)
 }
