@@ -5,6 +5,6 @@ export class Meta {
   @PrimaryColumn()
   key: string;
 
-  @Column()
+  @Column({ type: 'text' })
   value: string;
 }
