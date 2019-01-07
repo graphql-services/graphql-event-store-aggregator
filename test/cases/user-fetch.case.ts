@@ -6,6 +6,7 @@ const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {
   name: 'fetch user',
+  // only: true,
   events: [
     createEntityEvent({
       entity: 'User',
@@ -30,6 +31,7 @@ export const data: ImportEventCase = {
     `
     query {
         user(filter:{username:"jane"}) {
+          __typename
           id username createdAt updatedAt createdBy updatedBy company { id } companyId
         }
     }
@@ -38,6 +40,7 @@ export const data: ImportEventCase = {
   expectedResults: [
     {
       user: {
+        __typename: 'User',
         id: 'a2',
         username: 'jane',
         createdAt: isoCreationDate,

@@ -289,6 +289,9 @@ export class ModelResolver implements IModeLResolver {
     }[] = [];
 
     loop1: for (const field of fields) {
+      if (field.path[field.path.length - 1].startsWith('__')) {
+        continue;
+      }
       let targetEntity = entity;
       let relationship: EntityField | undefined;
       const paths = [...field.path];
