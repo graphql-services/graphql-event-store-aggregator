@@ -21,7 +21,12 @@ export class EventsService {
     const repo = db.repositoryForEntityName(event.entity);
     const entity = this.modelService.modelSchema.getEntityForName(event.entity);
 
-    log('received event:', JSON.stringify(event));
+    log(
+      JSON.stringify({
+        type: 'received event',
+        event,
+      }),
+    );
 
     switch (event.type) {
       case StoreEventType.CREATED:
@@ -61,7 +66,14 @@ export class EventsService {
     entityData.createdAt = event.date;
     entityData.createdBy = event.principalId;
     const data = this.getDataForStorage(entityData, entity);
-    log('data for create:', JSON.stringify(data));
+    log(
+      JSON.stringify({
+        type: 'create',
+        changes: event.data,
+        to: data,
+        entityData,
+      }),
+    );
     const item = repo.create({ id: event.entityId, ...data });
     await repo.save(item);
     await this.setLatestEvent(event);
@@ -78,7 +90,17 @@ export class EventsService {
       entityData.updatedAt = event.date;
       entityData.updatedBy = event.principalId;
       const data = this.getDataForStorage(entityData, entity);
-      log('data for update:', JSON.stringify(data));
+
+      log(
+        JSON.stringify({
+          type: 'update',
+          from: item,
+          changes: event.data,
+          to: data,
+          entityData,
+        }),
+      );
+
       repo.merge(item, data);
       await repo.save(item);
     }
@@ -93,13 +115,12 @@ export class EventsService {
     event: StoreEvent,
     entity: ModelEntity,
   ): any {
+    const relations = event.columns
+      .map(column => column.replace('Ids', '').replace('Id', ''))
+      .filter(column => entity.hasRelation(column));
     return repo.findOne({
       where: { id: event.entityId },
-      relations: event.columns
-        .map(column => column.replace('Ids', '').replace('Id', ''))
-        .filter(column => {
-          entity.hasRelation(column);
-        }),
+      relations,
     });
   }
 
