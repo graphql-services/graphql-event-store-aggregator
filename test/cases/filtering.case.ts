@@ -1,14 +1,14 @@
 import { ImportEventCase, createEntityEvent } from './model';
 import { StoreEventType } from '../../src/events/store-event.model';
 
-const isoCreationDate = '2018-10-01T06:15:53.758Z';
+const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
-const isoCreationDate2 = '2018-10-02T15:15:53.758Z';
+const isoCreationDate2 = '2018-10-02T15:15:53.000Z';
 const creationDate2 = new Date(isoCreationDate2);
 
 export const data: ImportEventCase = {
   name: 'filtering',
-  // only: true,
+  only: true,
   events: [
     createEntityEvent({
       entity: 'User',
@@ -32,7 +32,7 @@ export const data: ImportEventCase = {
       entity: 'Company',
       entityId: 'c1',
       data: {
-        name: 'test company',
+        name: 'téíáýžřčšěst company',
         employeesIds: ['a1'],
       },
       date: creationDate,
@@ -124,7 +124,7 @@ export const data: ImportEventCase = {
     `,
     `
       query {
-        user(filter:{company:{name:"test company"}}) {
+        user(filter:{company:{name:"téíáýžřčšěst company"}}) {
           id username companyId company {
             id
           }
@@ -169,11 +169,22 @@ export const data: ImportEventCase = {
     `,
     `
       query {
-        users(filter:{createdAt_gte:"${isoCreationDate}"}) {
+        users(filter:{createdAt_gte:"${isoCreationDate2}"}) {
           items{
             id username companyId company {
               id
             }
+          }
+          count
+        }
+      }
+    `,
+    `
+      query {
+        companies(q:"téíáýžřčšěst") {
+          items{
+            id
+            name
           }
           count
         }
@@ -185,7 +196,7 @@ export const data: ImportEventCase = {
       user: {
         id: 'a1',
         username: 'john.doe',
-        company: { id: 'c1', name: 'test company' },
+        company: { id: 'c1', name: 'téíáýžřčšěst company' },
         companyId: 'c1',
       },
     },
@@ -193,7 +204,7 @@ export const data: ImportEventCase = {
       user: {
         id: 'a1',
         username: 'john.doe',
-        company: { id: 'c1', name: 'test company' },
+        company: { id: 'c1', name: 'téíáýžřčšěst company' },
         companyId: 'c1',
       },
     },
@@ -202,7 +213,7 @@ export const data: ImportEventCase = {
       user: {
         id: 'a1',
         username: 'john.doe',
-        company: { id: 'c1', name: 'test company' },
+        company: { id: 'c1', name: 'téíáýžřčšěst company' },
         companyId: 'c1',
       },
     },
@@ -210,7 +221,7 @@ export const data: ImportEventCase = {
       user: {
         id: 'a1',
         username: 'john.doe',
-        company: { id: 'c1', name: 'test company' },
+        company: { id: 'c1', name: 'téíáýžřčšěst company' },
         companyId: 'c1',
       },
     },
@@ -228,7 +239,7 @@ export const data: ImportEventCase = {
           {
             id: 'a1',
             username: 'john.doe',
-            company: { id: 'c1', name: 'test company' },
+            company: { id: 'c1', name: 'téíáýžřčšěst company' },
             companyId: 'c1',
           },
           {
@@ -244,7 +255,7 @@ export const data: ImportEventCase = {
       user: {
         id: 'a1',
         username: 'john.doe',
-        company: { id: 'c1', name: 'test company' },
+        company: { id: 'c1', name: 'téíáýžřčšěst company' },
         companyId: 'c1',
       },
     },
@@ -296,6 +307,17 @@ export const data: ImportEventCase = {
             username: 'jane.siri',
             company: null,
             companyId: null,
+          },
+        ],
+        count: 1,
+      },
+    },
+    {
+      companies: {
+        items: [
+          {
+            id: 'c1',
+            name: 'téíáýžřčšěst company',
           },
         ],
         count: 1,

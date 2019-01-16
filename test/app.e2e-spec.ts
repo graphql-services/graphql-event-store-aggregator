@@ -6,6 +6,8 @@ import { DatabaseService } from '../src/database/database.service';
 
 import { cases } from './cases';
 
+// process.env.DATABASE_URL = 'mysql://root:root@localhost:/test';
+
 for (const caseItem of cases) {
   describe(`${caseItem.name}`, () => {
     let app: INestApplication;
