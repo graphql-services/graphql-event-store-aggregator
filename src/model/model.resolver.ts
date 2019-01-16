@@ -75,12 +75,12 @@ export class ModelResolver implements IModeLResolver {
       qb.andWhere(
         new Brackets((_qb: WhereExpression) => {
           const parts = args.q.split(' ');
-          for (let partIndex = 0; partIndex++; partIndex < parts.length) {
+          for (let partIndex = 0; partIndex < parts.length; partIndex++) {
             const part = parts[partIndex];
             for (
               let columnIndex = 0;
-              columnIndex++;
-              columnIndex < stringColumns.length
+              columnIndex < stringColumns.length;
+              columnIndex++
             ) {
               const column = stringColumns[columnIndex];
               const _val = part.replace(/\*/g, '%').replace(/\?/g, '_');

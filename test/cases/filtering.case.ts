@@ -3,12 +3,14 @@ import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
-const isoCreationDate2 = '2018-10-02T15:15:53.000Z';
+const isoCreationDate2 = '2018-10-03T15:15:53.000Z';
 const creationDate2 = new Date(isoCreationDate2);
+
+const isoCreationDate3 = '2018-10-02T14:15:53.000Z';
 
 export const data: ImportEventCase = {
   name: 'filtering',
-  only: true,
+  // only: true,
   events: [
     createEntityEvent({
       entity: 'User',
@@ -169,7 +171,7 @@ export const data: ImportEventCase = {
     `,
     `
       query {
-        users(filter:{createdAt_gte:"${isoCreationDate2}"}) {
+        users(filter:{createdAt_gte:"${isoCreationDate3}"}) {
           items{
             id username companyId company {
               id
