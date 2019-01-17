@@ -16,6 +16,7 @@ import {
 import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
 import { JoinTableMultipleColumnsOptions } from 'typeorm/decorator/options/JoinTableMuplipleColumnsOptions';
 
+// http://typeorm.io/#/separating-entity-definition
 export const schemaForEntity = (entity: ModelEntity): EntitySchema => {
   const columns: { [key: string]: EntitySchemaColumnOptions } = {};
 

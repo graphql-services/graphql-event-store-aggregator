@@ -88,9 +88,13 @@ export class EventsService {
     repo: Repository<any>,
     entity: ModelEntity,
   ) {
-    const item = await this.loadEntityData(repo, event, entity);
+    const item = await this.loadEntity(repo, event, entity);
     if (item) {
-      const entityData = apply(event.data, { ...item });
+      const normalizedEntityData = this.getNormalizedDataFromEntity(
+        item,
+        entity,
+      );
+      const entityData = apply(event.data, { ...normalizedEntityData });
       entityData.updatedAt = event.date;
       entityData.updatedBy = event.principalId;
       const data = this.getDataForStorage(entityData, entity);
@@ -101,11 +105,14 @@ export class EventsService {
           from: item,
           changes: event.data,
           to: data,
-          entityData,
         }),
       );
 
-      repo.merge(item, data);
+      for (const key of Object.keys(data)) {
+        item[key] = data[key];
+      }
+      // item.employees = item.employees.slice(0, 1);
+      // repo.merge(item, data);
       await repo.save(item);
     }
   }
@@ -114,7 +121,7 @@ export class EventsService {
     await repo.delete(event.entityId);
   }
 
-  private loadEntityData(
+  private loadEntity(
     repo: Repository<any>,
     event: StoreEvent,
     entity: ModelEntity,
@@ -129,6 +136,17 @@ export class EventsService {
     });
   }
 
+  private getNormalizedDataFromEntity(values: any, entity: ModelEntity): any {
+    const result = { ...values };
+    for (const fieldName of Object.keys(entity.fields)) {
+      const field = entity.fields[fieldName];
+      if (field.isReferenceList() && values[fieldName]) {
+        result[fieldName + 'Ids'] = values[fieldName].map(x => x.id);
+      }
+    }
+    return result;
+  }
+
   private getDataForStorage(data: any, entity: ModelEntity): any {
     const result = {};
     for (const fieldName of Object.keys(entity.fields)) {
@@ -139,10 +157,11 @@ export class EventsService {
       ) {
         result[fieldName] = { id: data[fieldName + 'Id'] };
       } else if (field.isReferenceList() && data[fieldName + 'Ids']) {
-        if (typeof data[fieldName + 'Ids'] === 'object') {
-          data[fieldName + 'Ids'] = Object.values(data[fieldName + 'Ids']);
+        let values = data[fieldName + 'Ids'];
+        if (typeof values === 'object') {
+          values = Object.values(values);
         }
-        result[fieldName] = data[fieldName + 'Ids'].map(x => ({ id: x }));
+        result[fieldName] = values.map(x => ({ id: x }));
       } else if (typeof data[fieldName] !== 'undefined') {
         result[fieldName] = data[fieldName];
       }
