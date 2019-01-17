@@ -9,6 +9,10 @@ import { Meta } from '../database/entities/Meta';
 import { log } from '../logger';
 import { apply } from './changeset';
 
+const onlyUnique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
 @Injectable()
 export class EventsService {
   constructor(
@@ -117,6 +121,7 @@ export class EventsService {
   ): any {
     const relations = event.columns
       .map(column => column.replace('Ids', '').replace('Id', ''))
+      .filter(onlyUnique)
       .filter(column => entity.hasRelation(column));
     return repo.findOne({
       where: { id: event.entityId },
