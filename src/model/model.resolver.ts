@@ -270,7 +270,10 @@ export class ModelResolver implements IModeLResolver {
   ): Promise<any> {
     args.offset = 0;
     const query = this.query(entity, args, fields || []);
-    return query.getOne();
+    log(`fetching query`);
+    const result = query.getOne();
+    log(`query item fetched`);
+    return result;
   }
 
   async resolve(
@@ -279,8 +282,11 @@ export class ModelResolver implements IModeLResolver {
     fields: FieldSelection[],
   ): Promise<{ items: any[]; count: number }> {
     const query = this.query(entity, args, fields || []);
+    log(`fetching query`);
     const items = await query.getMany();
+    log(`query items fetched`);
     const count = await query.getCount();
+    log(`query count fetched`);
     return { items, count };
   }
 
