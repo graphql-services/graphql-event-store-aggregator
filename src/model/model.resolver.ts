@@ -168,13 +168,17 @@ export class ModelResolver implements IModeLResolver {
     for (const key of Object.keys(filter)) {
       const value = filter[key];
       if (key === 'OR' && Array.isArray(value)) {
-        for (const orFilter of value) {
-          qb.orWhere(
-            new Brackets((_qb: WhereExpression) => {
-              this.applyFilter(_qb, orFilter, columnPrefix);
-            }),
-          );
-        }
+        qb.andWhere(
+          new Brackets((_qb: WhereExpression) => {
+            for (const orFilter of value) {
+              _qb.orWhere(
+                new Brackets((__qb: WhereExpression) => {
+                  this.applyFilter(__qb, orFilter, columnPrefix);
+                }),
+              );
+            }
+          }),
+        );
       } else if (key === 'AND' && Array.isArray(value)) {
         for (const orFilter of value) {
           qb.andWhere(

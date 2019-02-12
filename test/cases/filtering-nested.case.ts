@@ -35,7 +35,7 @@ export const data: ImportEventCase = {
       entityId: 'c1',
       data: {
         name: 'téíáýžřčšěst company',
-        employeesIds: ['a1'],
+        employeesIds: ['a1', 'a2'],
       },
       date: creationDate,
     }),
@@ -52,11 +52,18 @@ export const data: ImportEventCase = {
   queries: [
     `
       query {
-        users(filter:{OR:[{company:{id:"c1"}}]}) {
+        users(filter:{id:"a2",OR:[{company:{id:"c1"}}]}) {
           items{
             id age
           }
           count
+        }
+      }
+    `,
+    `
+      query {
+        user(id:"a2",filter:{OR:[{company:{id:"c1"}},{company:{id:"c1"}}]}) {
+          id age
         }
       }
     `,
@@ -66,11 +73,17 @@ export const data: ImportEventCase = {
       users: {
         items: [
           {
-            id: 'a1',
-            age: 30,
+            id: 'a2',
+            age: 25,
           },
         ],
         count: 1,
+      },
+    },
+    {
+      user: {
+        id: 'a2',
+        age: 25,
       },
     },
   ],
