@@ -249,10 +249,13 @@ export class ModelResolver implements IModeLResolver {
     let columns: string[] = [];
     for (const key of Object.keys(filter)) {
       if (key === 'OR' || key === 'AND') {
-        columns = [
-          ...this.getRelationshipColumnsFromFilter(filter[key], entity),
-          ...columns,
-        ];
+        filter[key].map(
+          f =>
+            (columns = [
+              ...this.getRelationshipColumnsFromFilter(f, entity),
+              ...columns,
+            ]),
+        );
       }
 
       const field = entity.fields[key];
