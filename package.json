@@ -53,7 +53,7 @@
     "rxjs": "^6.0.0",
     "sqlite3": "^4.0.2",
     "typeorm": "0.2.6",
-    "typescript": "3.0.1",
+    "typescript": "3.3.1",
     "voca": "^1.4.0"
   },
   "devDependencies": {
