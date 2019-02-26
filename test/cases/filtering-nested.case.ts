@@ -67,6 +67,20 @@ export const data: ImportEventCase = {
         }
       }
     `,
+    `
+      query {
+        user(id:"a2",filter:{company:{employees:{id:"a1"}}}) {
+          id age
+        }
+      }
+    `,
+    `
+      query {
+        user(id:"a2",filter:{company:{employees:{company:{id:"c1"}}}}) {
+          id age
+        }
+      }
+    `,
   ],
   expectedResults: [
     {
@@ -78,6 +92,18 @@ export const data: ImportEventCase = {
           },
         ],
         count: 1,
+      },
+    },
+    {
+      user: {
+        id: 'a2',
+        age: 25,
+      },
+    },
+    {
+      user: {
+        id: 'a2',
+        age: 25,
       },
     },
     {

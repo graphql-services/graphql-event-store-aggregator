@@ -3,6 +3,7 @@ import { DatabaseService } from '../database/database.service';
 import { ModelEntity } from './types/entity.model';
 import { EntityField } from './types/entityfield.model';
 import { log } from '../logger';
+import { fieldsConflictMessage } from 'graphql/validation/rules/OverlappingFieldsCanBeMerged';
 
 export interface FieldSelection {
   path: string[];
@@ -46,7 +47,7 @@ export class ModelResolver implements IModeLResolver {
       );
       // force table joining
       for (const column of columns) {
-        fields.push({ path: [column, 'id'] });
+        fields.push({ path: [...column.split('.'), 'id'] });
       }
     }
 
@@ -239,7 +240,7 @@ export class ModelResolver implements IModeLResolver {
       default:
         if (typeof value === 'object') {
           // qb.andWhere(`SELF_company.name = 'test company'`, valueObj);
-          this.applyFilter(qb, value, `SELF_${column}`);
+          this.applyFilter(qb, value, `${columnPrefix}_${column}`);
         } else {
           qb.andWhere(
             `${fullColumn} ${signs[suffix] || '='} :${uniqueKey}`,
@@ -249,14 +250,18 @@ export class ModelResolver implements IModeLResolver {
     }
   }
 
-  getRelationshipColumnsFromFilter(filter: any, entity: ModelEntity): string[] {
+  getRelationshipColumnsFromFilter(
+    filter: any,
+    entity: ModelEntity,
+    prefix: string = '',
+  ): string[] {
     let columns: string[] = [];
     for (const key of Object.keys(filter)) {
       if (key === 'OR' || key === 'AND') {
         filter[key].map(
           f =>
             (columns = [
-              ...this.getRelationshipColumnsFromFilter(f, entity),
+              ...this.getRelationshipColumnsFromFilter(f, entity, prefix),
               ...columns,
             ]),
         );
@@ -264,7 +269,18 @@ export class ModelResolver implements IModeLResolver {
 
       const field = entity.fields[key];
       if (field && field.isRelationship()) {
-        columns.push(key);
+        columns.push(prefix + key);
+        const subFilter = filter[key];
+        if (typeof subFilter === 'object') {
+          columns = [
+            ...columns,
+            ...this.getRelationshipColumnsFromFilter(
+              subFilter,
+              field.targetEntity(),
+              prefix + key + '.',
+            ),
+          ];
+        }
       }
     }
     return columns;
