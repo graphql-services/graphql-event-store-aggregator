@@ -1,7 +1,8 @@
 import { Brackets, SelectQueryBuilder, WhereExpression } from 'typeorm';
+
 import { DatabaseService } from '../database/database.service';
-import { ModelEntity } from './types/entity.model';
 import { EntityField } from './types/entityfield.model';
+import { ModelEntity } from './types/entity.model';
 import { log } from '../logger';
 
 export interface FieldSelection {
@@ -142,7 +143,7 @@ export class ModelResolver implements IModeLResolver {
     }
 
     return qb;
-  }
+  };
 
   applyFilter(
     qb: SelectQueryBuilder<any>,
@@ -210,7 +211,14 @@ export class ModelResolver implements IModeLResolver {
   ): Promise<any> {
     args.offset = 0;
     const query = this.query(entity, args, fields || []);
-    return query.getOne();
+
+    const logMessage = `load detail ${entity.name}, args: ${JSON.stringify(
+      args,
+    )}`;
+    global.console.time(logMessage);
+    const result = await query.getOne();
+    global.console.timeEnd(logMessage);
+    return result;
   }
 
   async resolve(
@@ -219,8 +227,13 @@ export class ModelResolver implements IModeLResolver {
     fields: FieldSelection[],
   ): Promise<{ items: any[]; count: number }> {
     const query = this.query(entity, args, fields || []);
+    const logMessage = `load list ${entity.name}, args: ${JSON.stringify(
+      args,
+    )}`;
+    global.console.time(logMessage);
     const items = await query.getMany();
     const count = await query.getCount();
+    global.console.timeEnd(logMessage);
     return { items, count };
   }
 
