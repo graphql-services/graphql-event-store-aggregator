@@ -296,7 +296,7 @@ export class ModelResolver implements IModeLResolver {
     const query = this.query(entity, args, fields || []);
     const logMessage = `load detail ${entity.name}, args: ${JSON.stringify(
       args,
-    )}`;
+    )} ${Date.now()}`;
 
     global.console.time(logMessage);
     const result = query.getOne();
@@ -312,7 +312,7 @@ export class ModelResolver implements IModeLResolver {
     const query = this.query(entity, args, fields || []);
     const logMessage = `load list ${entity.name}, args: ${JSON.stringify(
       args,
-    )}`;
+    )} ${Date.now()}`;
 
     global.console.time(logMessage);
     const items = await query.getMany();
