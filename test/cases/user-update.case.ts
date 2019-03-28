@@ -1,9 +1,10 @@
 import { ImportEventCase, createEntityEvent, updateEntityEvent } from './model';
+
 import { StoreEventType } from '../../src/events/store-event.model';
 
-const isoCreationDate = '2018-10-01T06:15:53.758Z';
+const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
-const isoUpdateDate = '2018-10-02T06:15:53.758Z';
+const isoUpdateDate = '2018-10-02T06:15:53.000Z';
 const updateDate = new Date(isoUpdateDate);
 
 export const data: ImportEventCase = {

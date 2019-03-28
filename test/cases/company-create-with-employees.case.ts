@@ -1,6 +1,6 @@
 import { ImportEventCase, createEntityEvent } from './model';
 
-const isoCreationDate = '2018-10-01T06:15:53.758Z';
+const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {

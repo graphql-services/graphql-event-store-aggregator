@@ -1,16 +1,16 @@
 import {
-  createConnection,
-  EntitySchema,
   Connection,
+  EntitySchema,
   Repository,
+  createConnection,
 } from 'typeorm';
-import { Injectable } from '@nestjs/common';
-
 import { ModelEntity, ModelSchema } from '../model/model.schema';
-import { schemaForEntity } from './database.schema';
+
 import { DriverUtils } from './driver.utils';
-import { Meta } from './entities/Meta';
 import { ENV } from '../env';
+import { Injectable } from '@nestjs/common';
+import { Meta } from './entities/Meta';
+import { schemaForEntity } from './database.schema';
 
 @Injectable()
 export class DatabaseService {
@@ -44,6 +44,13 @@ export class DatabaseService {
 
   async close() {
     if (this.connection) await this.connection.close();
+  }
+
+  async cleanAll() {
+    for (const meta of this.connection.entityMetadatas) {
+      const repo = this.connection.getRepository(meta.name);
+      await repo.query(`DELETE FROM ${meta.tableName}`);
+    }
   }
 
   initializeRepository(entity: ModelEntity) {

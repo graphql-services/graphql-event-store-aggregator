@@ -8,8 +8,16 @@ const momentFn = (moment as any).default || moment;
 
 declare module 'typeorm' {
   export interface SelectQueryBuilder<Entity> {
-    getRawManyAndHydrate: (entity: ModelEntity) => Promise<any[]>;
-    getRawOneAndHydrate: (entity: ModelEntity) => Promise<any>;
+    getRawManyAndHydrate: (
+      entity: ModelEntity,
+      offset: number,
+      limit: number,
+    ) => Promise<any[]>;
+    getRawOneAndHydrate: (
+      entity: ModelEntity,
+      offset: number,
+      limit: number,
+    ) => Promise<any>;
   }
 }
 
@@ -24,17 +32,37 @@ interface RowHydrationCache {
 
 SelectQueryBuilder.prototype.getRawManyAndHydrate = async function(
   entity: ModelEntity,
+  offset: number,
+  limit: number,
 ): Promise<any[]> {
-  const results = await this.getRawMany();
+  const clone = this.clone();
+  const ids = (await clone
+    .select('DISTINCT(SELF.id)')
+    .offset(offset)
+    .limit(limit)
+    .getRawMany()).map(x => x.id);
+
+  const results = await this.clone()
+    .andWhere('SELF.id IN (:...idInParam)', {
+      idInParam: ids,
+    })
+    .getRawMany();
+  global.console.time('hydrated results');
   const hydrated = hydrateRows(entity, results, { entities: {}, rows: [] });
+  global.console.log(
+    `num results: ${results.length}, hydrated: ${hydrated.length}`,
+  );
+  global.console.timeEnd('hydrated results');
   // global.console.log(JSON.stringify(results), '=>', hydrated);
   return hydrated;
 };
 
 SelectQueryBuilder.prototype.getRawOneAndHydrate = async function(
   entity: ModelEntity,
+  offset: number,
+  limit: number,
 ): Promise<any> {
-  const results = await this.getRawManyAndHydrate(entity);
+  const results = await this.getRawManyAndHydrate(entity, offset, limit);
   return results[0];
 };
 

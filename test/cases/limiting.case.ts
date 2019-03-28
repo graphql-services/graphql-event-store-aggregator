@@ -1,11 +1,14 @@
 import { ImportEventCase, createEntityEvent } from './model';
+
 import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
+const isoCreationDate2 = '2018-10-03T15:15:53.000Z';
+const creationDate2 = new Date(isoCreationDate2);
 
 export const data: ImportEventCase = {
-  name: 'search company with employees',
+  name: 'limiting and offset',
   // only: true,
   events: [
     createEntityEvent({
@@ -13,55 +16,51 @@ export const data: ImportEventCase = {
       entityId: 'a1',
       data: {
         username: 'john.doe',
+        age: 30,
       },
       date: creationDate,
     }),
     createEntityEvent({
-      entity: 'Company',
-      entityId: 'c1',
+      entity: 'User',
+      entityId: 'a2',
       data: {
-        name: 'test company',
-        employeesIds: ['a1'],
+        username: 'jane.siri',
+        age: 25,
       },
-      date: creationDate,
+      date: creationDate2,
     }),
     createEntityEvent({
-      entity: 'Company',
-      entityId: 'c2',
+      entity: 'User',
+      entityId: 'a3',
       data: {
-        name: 'Another company',
+        username: 'user3',
+        age: 35,
       },
-      date: creationDate,
+      date: creationDate2,
     }),
   ],
   queries: [
     `
-    query {
-        companies(q:"john.doe") {
-            items { id name employees { id username } }
+      query {
+          users(sort:[ID_ASC], limit:1) {
+            items{
+              id username
+            }
             count
-        }
-    }
-  `,
+          }
+      }
+    `,
   ],
   expectedResults: [
     {
-      companies: {
+      users: {
         items: [
           {
-            id: 'c1',
-            name: 'test company',
-            employees: [
-              {
-                id: 'a1',
-                username: 'john.doe',
-              },
-            ],
-            // createdAt: isoCreationDate,
-            // updatedAt: null,
+            id: 'a1',
+            username: 'john.doe',
           },
         ],
-        count: 1,
+        count: 3,
       },
     },
   ],

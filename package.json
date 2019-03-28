@@ -17,6 +17,10 @@
     "test:unit": "jest",
     "test:cov": "jest --coverage",
     "test:e2e": "cd test && jest --config ./jest-e2e.json",
+    "test:db": "npm run test:db:sqlite && npm run test:db:mysql && npm run test:db:postgres",
+    "test:db:sqlite": "env DATABASE_URL=sqlite://:memory: npm run test:e2e",
+    "test:db:mysql": "env DATABASE_URL=mysql://root:@localhost/test npm run test:e2e",
+    "test:db:postgres": "env DATABASE_URL=postgres://postgres@localhost/test npm run test:e2e",
     "webpack": "webpack --config webpack.config.js"
   },
   "dependencies": {

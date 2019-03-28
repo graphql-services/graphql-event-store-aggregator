@@ -37,6 +37,7 @@ for (const caseItem of cases) {
     });
 
     afterEach(async () => {
+      await databaseService.cleanAll();
       await app.close();
       await databaseService.close();
     });

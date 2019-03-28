@@ -299,13 +299,17 @@ export class ModelResolver implements IModelResolver {
     fields: FieldSelection[],
   ): Promise<any> {
     args.offset = 0;
-    const query = this.query(entity, args, fields || []);
     const logMessage = `load detail ${entity.name}, args: ${JSON.stringify(
       args,
     )} ${Date.now()}`;
 
     global.console.time(logMessage);
-    const result = await query.getRawOneAndHydrate(entity);
+    const query = this.query(entity, args, fields || []);
+    const result = await query.getRawOneAndHydrate(
+      entity,
+      args.offset,
+      args.limit,
+    );
     global.console.timeEnd(logMessage);
 
     return result;
@@ -316,13 +320,17 @@ export class ModelResolver implements IModelResolver {
     args,
     fields: FieldSelection[],
   ): Promise<{ items: any[]; count: number }> {
-    const query = this.query(entity, args, fields || []);
     const logMessage = `load list ${entity.name}, args: ${JSON.stringify(
       args,
     )} ${Date.now()}`;
 
     global.console.time(logMessage);
-    const items = await query.getRawManyAndHydrate(entity);
+    const query = this.query(entity, args, fields || []);
+    const items = await query.getRawManyAndHydrate(
+      entity,
+      args.offset,
+      args.limit,
+    );
     const count = await query.getCount();
     global.console.timeEnd(logMessage);
 

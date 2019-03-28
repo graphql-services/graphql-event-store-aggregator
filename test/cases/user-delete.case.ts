@@ -1,9 +1,9 @@
 import { ImportEventCase, createEntityEvent, deleteEntityEvent } from './model';
 import { StoreEventType } from '../../src/events/store-event.model';
 
-const isoCreationDate = '2018-10-01T06:15:53.758Z';
+const isoCreationDate = '2018-10-01T06:15:53.000Z';
 const creationDate = new Date(isoCreationDate);
-const isoDeletionDate = '2018-10-02T06:15:53.758Z';
+const isoDeletionDate = '2018-10-02T06:15:53.000Z';
 const deletionDate = new Date(isoDeletionDate);
 
 export const data: ImportEventCase = {
