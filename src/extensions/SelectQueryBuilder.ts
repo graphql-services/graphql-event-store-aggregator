@@ -1,7 +1,10 @@
+import * as moment from 'moment';
+
 import { GraphQLDateTime } from 'graphql-iso-date';
 import { ModelEntity } from 'model/model.schema';
 import { SelectQueryBuilder } from 'typeorm';
-import moment from 'moment';
+
+const momentFn = (moment as any).default || moment;
 
 declare module 'typeorm' {
   export interface SelectQueryBuilder<Entity> {
@@ -107,7 +110,7 @@ const entityValuesFromResultRow = (
     }
 
     if (row[fieldName] && field.namedType === GraphQLDateTime) {
-      result[field.name] = moment.utc(row[fieldName]).toISOString();
+      result[field.name] = momentFn.utc(row[fieldName]).toISOString();
       continue;
     }
 
