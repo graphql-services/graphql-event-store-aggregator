@@ -54,6 +54,13 @@ export const data: ImportEventCase = {
           }
       }
     `,
+    `
+      query {
+          user(filter:{username:"john.doe"}) {
+              companyId
+          }
+      }
+    `,
   ],
   expectedResults: [
     {
@@ -65,6 +72,11 @@ export const data: ImportEventCase = {
           name: 'test company',
           address: { street: 'Infinite loop', city: 'San Francisco' },
         },
+        companyId: 'c1',
+      },
+    },
+    {
+      user: {
         companyId: 'c1',
       },
     },

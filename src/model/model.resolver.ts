@@ -355,9 +355,11 @@ export class ModelResolver implements IModelResolver {
       let relationship: EntityField | undefined;
       const paths = [...field.path];
 
-      // if path contains something like ['employeesIds'] we translate it to ['employees','id']
-      if (paths[paths.length - 1].match(/.+Ids/)) {
-        paths[paths.length - 1] = paths[paths.length - 1].replace('Ids', '');
+      // if path contains something like ['employeesIds','companyId'] we translate it to ['employees','id']
+      if (paths[paths.length - 1].match(/.+Ids?/)) {
+        paths[paths.length - 1] = paths[paths.length - 1]
+          .replace('Ids', '')
+          .replace('Id', '');
         paths.push('id');
       }
 
