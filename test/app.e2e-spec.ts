@@ -1,9 +1,9 @@
 import request, { SuperTest } from 'supertest';
-import { Test } from '@nestjs/testing';
-import { AppModule } from './../src/app.module';
-import { INestApplication } from '@nestjs/common';
-import { DatabaseService } from '../src/database/database.service';
 
+import { AppModule } from './../src/app.module';
+import { DatabaseService } from '../src/database/database.service';
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { cases } from './cases';
 
 // process.env.DATABASE_URL = 'mysql://root:root@localhost:/test';

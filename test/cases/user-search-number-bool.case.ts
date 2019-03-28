@@ -1,4 +1,5 @@
 import { ImportEventCase, createEntityEvent } from './model';
+
 import { StoreEventType } from '../../src/events/store-event.model';
 
 const isoCreationDate = '2018-10-01T06:15:53.758Z';
@@ -6,6 +7,7 @@ const creationDate = new Date(isoCreationDate);
 
 export const data: ImportEventCase = {
   name: 'search user by number and boolean',
+  // only: true,
   events: [
     createEntityEvent({
       entity: 'User',

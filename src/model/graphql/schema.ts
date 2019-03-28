@@ -13,13 +13,13 @@ import { camelCase } from 'voca';
 import * as pluralize from 'pluralize';
 
 import { ModelSchema } from '../model.schema';
-import { FieldSelection, IModeLResolver } from '../model.resolver';
+import { FieldSelection, IModelResolver } from '../model.resolver';
 
 const pluralizeFn = (pluralize as any).default || pluralize; // jest handles default export differently
 
 export const getGraphQLSchema = (
   modelSchema: ModelSchema,
-  resolver: IModeLResolver,
+  resolver: IModelResolver,
 ): GraphQLSchema => {
   const queryFields: GraphQLFieldConfigMap<any, any> = {};
 

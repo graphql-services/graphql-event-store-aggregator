@@ -1,3 +1,5 @@
+import '../extensions/SelectQueryBuilder';
+
 import { Brackets, SelectQueryBuilder, WhereExpression } from 'typeorm';
 
 import { DatabaseService } from '../database/database.service';
@@ -9,7 +11,7 @@ import { log } from '../logger';
 export interface FieldSelection {
   path: string[];
 }
-export interface IModeLResolver {
+export interface IModelResolver {
   resolveOne(entity: ModelEntity, args, fields: FieldSelection[]): Promise<any>;
   resolve(
     entity: ModelEntity,
@@ -22,7 +24,7 @@ const onlyUnique = (value, index, self) => {
   return self.indexOf(value) === index;
 };
 
-export class ModelResolver implements IModeLResolver {
+export class ModelResolver implements IModelResolver {
   constructor(private readonly databaseService: DatabaseService) {}
 
   private query = (
@@ -141,16 +143,20 @@ export class ModelResolver implements IModeLResolver {
       columnsByKey[p] = { ...col, fullPath: p };
     }
 
-    qb.select(['SELF.id']);
+    qb.select('SELF.id', 'SELF.id');
     for (const p of Object.keys(columnsByKey)) {
       const column = columnsByKey[p];
       const parts = p.split('.');
-      const columnAlias = `SELF_${parts.join('_')}`;
+      const columnAlias = `SELF.${parts.join('.')}`;
       if (column.relationship) {
         const columnName = `SELF_${parts.slice(0, -1).join('_')}.${
           parts[parts.length - 1]
         }`;
         qb.addSelect(columnName, columnAlias);
+
+        const idColumnName = `SELF_${parts.slice(0, -1).join('_')}.id`;
+        const idColumnAlias = `SELF.${parts.slice(0, -1).join('.')}.id`;
+        qb.addSelect(idColumnName, idColumnAlias);
       } else {
         const columnName = `SELF${parts.slice(0, -1).join('_')}.${
           parts[parts.length - 1]
@@ -299,8 +305,9 @@ export class ModelResolver implements IModeLResolver {
     )} ${Date.now()}`;
 
     global.console.time(logMessage);
-    const result = query.getOne();
+    const result = await query.getRawOneAndHydrate(entity);
     global.console.timeEnd(logMessage);
+
     return result;
   }
 
@@ -315,7 +322,7 @@ export class ModelResolver implements IModeLResolver {
     )} ${Date.now()}`;
 
     global.console.time(logMessage);
-    const items = await query.getMany();
+    const items = await query.getRawManyAndHydrate(entity);
     const count = await query.getCount();
     global.console.timeEnd(logMessage);
 
@@ -346,6 +353,7 @@ export class ModelResolver implements IModeLResolver {
         paths.push('id');
       }
 
+      // find target entity for nested relationship
       for (let i = 0; i < paths.length - 1; i++) {
         relationship = targetEntity.fields[paths[i]];
         if (relationship.isReference() || relationship.isReferenceList()) {

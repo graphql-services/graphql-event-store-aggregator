@@ -1,27 +1,27 @@
 import {
-  getNullableType,
-  GraphQLObjectType,
-  GraphQLNonNull,
-  GraphQLList,
-  GraphQLID,
-  GraphQLInputType,
-  GraphQLFieldConfigMap,
-  GraphQLInterfaceType,
-  GraphQLInt,
   GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLInputFieldConfigMap,
   GraphQLEnumValueConfigMap,
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLInputFieldConfig,
+  GraphQLInputFieldConfigMap,
+  GraphQLInputObjectType,
+  GraphQLInputType,
+  GraphQLInt,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
   GraphQLString,
   assertType,
-  isScalarType,
-  isObjectType,
-  GraphQLInputFieldConfig,
   getNamedType,
+  getNullableType,
+  isObjectType,
+  isScalarType,
 } from 'graphql';
-import { GraphQLDateTime } from 'graphql-iso-date';
 
 import { EntityField } from './entityfield.model';
+import { GraphQLDateTime } from 'graphql-iso-date';
 import { ModelSchema } from '../model.schema';
 
 const entityInterface = new GraphQLInterfaceType({
@@ -75,6 +75,11 @@ export class ModelEntity {
     };
   }
 
+  get fieldsArray(): EntityField[] {
+    const keys = Object.keys(this.fields);
+    return keys.map(k => this.fields[k]);
+  }
+
   get name(): string {
     return this.config.name;
   }
@@ -109,6 +114,9 @@ export class ModelEntity {
         if (field.isReference()) {
           fields[field.name + 'Id'] = {
             type: GraphQLID,
+            resolve: (obj: any) => {
+              return (obj[field.name] && obj[field.name].id) || null;
+            },
           };
         }
         if (field.isReferenceList()) {
