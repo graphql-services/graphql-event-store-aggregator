@@ -42,6 +42,10 @@ SelectQueryBuilder.prototype.getRawManyAndHydrate = async function(
     .limit(limit)
     .getRawMany()).map(x => x.id);
 
+  if (ids.length === 0) {
+    return [];
+  }
+
   const results = await this.clone()
     .andWhere('SELF.id IN (:...idInParam)', {
       idInParam: ids,
