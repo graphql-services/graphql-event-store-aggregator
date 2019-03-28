@@ -47,14 +47,8 @@ SelectQueryBuilder.prototype.getRawManyAndHydrate = async function(
       idInParam: ids,
     })
     .getRawMany();
-  global.console.time('hydrated results');
-  const hydrated = hydrateRows(entity, results, { entities: {}, rows: [] });
-  global.console.log(
-    `num results: ${results.length}, hydrated: ${hydrated.length}`,
-  );
-  global.console.timeEnd('hydrated results');
-  // global.console.log(JSON.stringify(results), '=>', hydrated);
-  return hydrated;
+
+  return hydrateRows(entity, results, { entities: {}, rows: [] });
 };
 
 SelectQueryBuilder.prototype.getRawOneAndHydrate = async function(
