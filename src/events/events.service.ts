@@ -1,13 +1,13 @@
-import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
-
 import { StoreEvent, StoreEventType } from './store-event.model';
+
 import { DatabaseService } from '../database/database.service';
+import { Injectable } from '@nestjs/common';
+import { Meta } from '../database/entities/Meta';
 import { ModelEntity } from '../model/model.schema';
 import { ModelService } from '../model/model.service';
-import { Meta } from '../database/entities/Meta';
-import { log } from '../logger';
+import { Repository } from 'typeorm';
 import { apply } from './changeset';
+import { log } from '../logger';
 
 const onlyUnique = (value, index, self) => {
   return self.indexOf(value) === index;
@@ -54,7 +54,6 @@ export class EventsService {
     return undefined;
   }
   private async setLatestEvent(event: StoreEvent) {
-    await this.databaseService.metadataRepository.delete('latestEventData');
     const meta = new Meta();
     meta.key = 'latestEventData';
     meta.value = JSON.stringify(event);
