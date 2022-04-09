@@ -42,7 +42,7 @@
     "graphql-iso-date": "^3.5.0",
     "graphql-playground-middleware-express": "^1.7.3",
     "graphql-tools": "^4.0.1",
-    "moment": "^2.22.2",
+    "moment": "^2.29.2",
     "mongodb": "^3.1.4",
     "mysql": "^2.16.0",
     "nsqjs": "^0.10.1",
