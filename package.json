@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@nestjs/common": "5.3.11",
-    "@nestjs/core": "5.3.11",
+    "@nestjs/core": "9.2.1",
     "@nestjs/graphql": "^3.0.0",
     "@nestjs/microservices": "^5.0.0",
     "@nestjs/testing": "^5.0.0",
